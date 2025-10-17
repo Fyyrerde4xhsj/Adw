@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RewardMe App</title>
+    
+    <!-- This is an ad network script. Ensure it's from a trusted source. -->
+    <script src='//libtl.com/sdk.js' data-zone='10038129' data-sdk='show_10038129'></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-bg-start: #00c6ff;
+            --primary-bg-end: #0072ff;
+            --accent-color-start: #f5af19;
+            --accent-color-end: #f12711;
+            --card-bg: rgba(0, 0, 0, 0.2);
+            --input-bg: rgba(0, 0, 0, 0.25);
+            --text-light: #ffffff;
+            --text-dark: #cbd5e1;
+            --card-grad-1-start: #d38312; --card-grad-1-end: #a83279;
+            --card-grad-2-start: #11998e; --card-grad-2-end: #38ef7d;
+            --card-grad-3-start: #c31432; --card-grad-3-end: #240b36;
+            --card-grad-4-start: #eb3349; --card-grad-4-end: #f45c43;
+        }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, var(--primary-bg-start), var(--primary-bg-end)); color: var(--text-light); }
+        .card-bg { background-color: var(--card-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; }
+        .input-field { background-color: var(--input-bg); border: 1px solid rgba(255, 255, 255, 0.2); transition: border-color 0.3s, box-shadow 0.3s; color: var(--text-light); }
+        .input-field::placeholder { color: var(--text-dark); }
+        .input-field:focus { outline: none; border-color: var(--accent-color-start); box-shadow: 0 0 0 3px rgba(245, 175, 25, 0.3); }
+        .btn-accent { background: linear-gradient(45deg, var(--accent-color-start), var(--accent-color-end)); color: white; font-weight: bold; border-radius: 0.75rem; transition: all 0.2s ease-in-out; transform: scale(1); box-shadow: 0 4px 20px rgba(241, 39, 17, 0.25); border: none; }
+        .btn-accent:hover { box-shadow: 0 6px 25px rgba(241, 39, 17, 0.35); transform: translateY(-2px); }
+        .btn-accent:active { transform: scale(0.96); }
+        .btn-accent[disabled] { background: #555; cursor: not-allowed; box-shadow: none; transform: none; }
+        .main-page { display: none; }
+        .main-page.active { display: flex; animation: fadeIn 0.6s ease-in-out; }
+        .sub-page { display: none; }
+        .sub-page.active { display: block; animation: slideInUp 0.5s ease-out; }
+        .bottom-nav { background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border-top: 1px solid rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: repeat(5, 1fr); }
+        .nav-link { transition: transform 0.2s ease-in-out, color 0.2s; position: relative; padding: 0.75rem 0; color: var(--text-dark); }
+        .nav-link.active { color: var(--accent-color-start); transform: translateY(-5px); }
+        .nav-link.active::after { content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--accent-color-start); animation: popIn 0.3s ease-out; }
+        .feature-btn { border-radius: 1.5rem; padding: 1rem; color: var(--text-light); font-weight: 700; text-align: center; transition: all 0.3s ease-in-out; cursor: pointer; overflow: hidden; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; aspect-ratio: 1 / 1; }
+        .feature-btn:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 15px 25px rgba(0,0,0,0.3); }
+        .feature-btn:active { transform: translateY(-2px) scale(0.98); box-shadow: 0 5px 15px rgba(0,0,0,0.2); filter: brightness(0.9); }
+        .feature-btn .icon { filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4)); transition: transform 0.3s ease; }
+        .feature-btn:hover .icon { transform: scale(1.2); }
+        .feature-btn .text { font-size: 1.125rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+        .feature-btn:nth-child(1) { background: linear-gradient(45deg, var(--card-grad-1-start), var(--card-grad-1-end)); }
+        .feature-btn:nth-child(2) { background: linear-gradient(45deg, var(--card-grad-2-start), var(--card-grad-2-end)); }
+        .feature-btn:nth-child(3) { background: linear-gradient(45deg, var(--card-grad-3-start), var(--card-grad-3-end)); }
+        .feature-btn:nth-child(4) { background: linear-gradient(45deg, var(--card-grad-4-start), var(--card-grad-4-end)); }
+        .feature-btn:nth-child(1) .icon { color: #fef08a; } .feature-btn:nth-child(2) .icon { color: #ccfbf1; } .feature-btn:nth-child(3) .icon { color: #fbcfe8; } .feature-btn:nth-child(4) .icon { color: #ffedd5; }
+        #slider-container { overflow: hidden; position: relative; aspect-ratio: 16/7; border-radius: 1rem;}
+        .history-item { display: flex; align-items: center; padding: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .history-item:last-child { border-bottom: none; }
+        .history-item.credit .amount { color: #34d399; } .history-item.debit .amount { color: #f87171; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes popIn { from { transform: translateX(-50%) scale(0.5); } to { transform: translateX(-50%) scale(1); } }
+    </style>
+</head>
+<body class="max-w-md mx-auto">
+
+    <div id="loader" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"><div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div></div>
+
+    <div id="name-prompt-section" class="min-h-screen p-8 flex-col justify-center items-center main-page">
+        <div class="text-center w-full max-w-sm" style="animation: zoomIn 0.5s ease-out;">
+            <i data-lucide="gift" class="w-20 h-20 mx-auto text-yellow-400 mb-4"></i>
+            <h1 class="text-4xl font-extrabold text-white mb-2">Welcome to RewardMe</h1>
+            <p class="text-center text-gray-300 mb-8">Enter your name to get started.</p>
+            <input id="user-name-input" type="text" placeholder="Your Name" class="w-full p-4 rounded-xl input-field mb-4 text-center text-lg">
+            <button id="save-name-btn" class="w-full p-4 btn-accent">Continue</button>
+        </div>
+    </div>
+
+    <div id="app-container" class="min-h-screen flex-col main-page">
+        <header class="p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="https://placehold.co/50x50/f5af19/ffffff?text=A" id="profile-picture" class="rounded-full border-2 border-yellow-400">
+                <div>
+                    <h2 class="font-semibold text-lg leading-tight" id="header-profile-name">Hi, User</h2>
+                    <p class="text-gray-300 text-sm leading-tight">Welcome Back!</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="navigateTo('notifications-page')" class="text-white bg-black/20 p-2 rounded-full relative">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span id="notification-dot" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <div class="bg-yellow-500 text-white px-4 py-2 rounded-full font-bold flex items-center space-x-2">
+                    <span id="header-coin-balance">0</span><i data-lucide="coins" class="w-5 h-5"></i>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow pb-20">
+            <div id="back-button-container" class="hidden p-4"><button onclick="navigateTo('home-page')" class="flex items-center text-yellow-400"><i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i><span>Home</span></button></div>
+            
+            <div id="home-page" class="p-4 space-y-6 sub-page"></div>
+            <div id="history-page" class="p-4 sub-page"></div>
+            <div id="notifications-page" class="p-4 sub-page"></div>
+            <div id="color-game-page" class="p-4 space-y-4 text-center sub-page"></div>
+            <div id="visit-earn-page" class="p-4 space-y-4 sub-page"></div>
+            <div id="social-tasks-page" class="p-4 space-y-4 sub-page"></div>
+            <div id="wallet-page" class="p-4 space-y-6 sub-page"></div>
+            <div id="refer-page" class="p-4 space-y-6 sub-page"></div>
+            <div id="profile-page" class="p-4 sub-page"></div>
+        </main>
+        
+        <nav class="bottom-nav fixed bottom-0 w-full max-w-md items-center text-center rounded-t-2xl">
+            <a href="#" class="nav-link" data-page="refer-page"><i data-lucide="users" class="mx-auto w-6 h-6"></i></a>
+            <a href="#" class="nav-link" data-page="wallet-page"><i data-lucide="wallet" class="mx-auto w-6 h-6"></i></a>
+            <a href="#" class="nav-link active" data-page="home-page"><i data-lucide="home" class="mx-auto w-6 h-6"></i></a>
+            <a href="#" class="nav-link" data-page="history-page"><i data-lucide="history" class="mx-auto w-6 h-6"></i></a>
+            <a href="#" class="nav-link" data-page="profile-page"><i data-lucide="user" class="mx-auto w-6 h-6"></i></a>
+        </nav>
+    </div>
+    
+    <!-- Popups -->
+    <div id="custom-alert" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"></div>
+    <div id="confirmation-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"></div>
+    <div id="color-game-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"></div>
+    <div id="ad-click-task-popup" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"></div>
+
+    <script type="module">
+        // IMPORTANT: Do NOT expose your Firebase config keys on the client-side in a public application.
+        // Use environment variables and server-side logic (like Cloud Functions) to protect them.
+        const firebaseConfig = {
+          apiKey: "AIzaSyBuOCJKCdV9vYyaODa2tbU5gQAOYAZSxdo",
+          authDomain: "rewedme-2d715.firebaseapp.com",
+          databaseURL: "https://rewedme-2d715-default-rtdb.firebaseio.com",
+          projectId: "rewedme-2d715",
+          storageBucket: "rewedme-2d715.firebasestorage.app",
+          messagingSenderId: "995026434733",
+          appId: "1:995026434733:web:26b3aa505221720e292424"
+        };
+        
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, writeBatch, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null, userData = null, appConfig = {}, sliderInterval, correctColor;
+        let notifications = [];
+        let currentPageId = 'home-page';
+        let configUnsubscribe = null;
+
+        const loader = document.getElementById('loader');
+        
+        window.onload = () => {
+            lucide.createIcons();
+            setupEventListeners();
+            onAuthStateChanged(auth, handleAuthStateChange);
+        };
+
+        // --- NAVIGATION ---
+        function navigateTo(pageId) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            const newPage = document.getElementById(pageId);
+            if (newPage) newPage.classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.toggle('active', link.dataset.page === pageId);
+            });
+            
+            document.getElementById('back-button-container').classList.toggle('hidden', pageId === 'home-page');
+            currentPageId = pageId;
+            window.scrollTo(0, 0);
+        }
+        // Make navigateTo globally accessible
+        window.navigateTo = navigateTo;
+
+
+        // --- HELPER FUNCTIONS ---
+        function showAlert(message) {
+            const alertContainer = document.getElementById('custom-alert');
+            alertContainer.innerHTML = `<div class="card-bg p-6 w-full max-w-sm text-center" style="animation: zoomIn 0.3s ease-out;"><p class="mb-4">${message}</p><button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="btn-accent px-6 py-2">OK</button></div>`;
+            alertContainer.classList.remove('hidden');
+        }
+
+        function showConfirmation(message, onConfirm, onCancel = () => {}) {
+            const popup = document.getElementById('confirmation-popup');
+            popup.innerHTML = `<div class="card-bg p-6 w-full max-w-sm text-center" style="animation: zoomIn 0.3s ease-out;"><p class="mb-6">${message}</p><div class="flex justify-center space-x-4"><button id="confirm-ok-btn" class="btn-accent px-6 py-2 bg-red-600 hover:bg-red-700">Yes, Proceed</button><button id="confirm-cancel-btn" class="bg-gray-600 text-white px-6 py-2 rounded-lg">Cancel</button></div></div>`;
+            popup.classList.remove('hidden');
+            document.getElementById('confirm-ok-btn').onclick = () => { popup.classList.add('hidden'); onConfirm(); };
+            document.getElementById('confirm-cancel-btn').onclick = () => { popup.classList.add('hidden'); onCancel(); };
+        }
+
+        function showMainPage(pageId) {
+            document.querySelectorAll('.main-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+        
+        async function handleSaveName() {
+            const name = document.getElementById('user-name-input').value.trim();
+            if (name.length < 3) return showAlert("Please enter a name with at least 3 characters.");
+            
+            loader.style.display = 'flex';
+            try {
+                await updateProfile(currentUser, { displayName: name });
+                const ownReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                const defaultUserData = {
+                    uid: currentUser.uid, name, email: currentUser.email || 'anonymous',
+                    balance: 50, referralCode: ownReferralCode, referredBy: null, referralCount: 0, referralEarnings: 0,
+                    createdAt: serverTimestamp(), isBlocked: false, dailyAdCount: 0, lastAdWatchDate: '1970-01-01',
+                    visitedWebsitesToday: [], lastWebsiteVisitDate: '1970-01-01', completedSocialTasks: []
+                };
+                await setDoc(doc(db, "users", currentUser.uid), defaultUserData);
+                await logTransaction(50, 'Signup Bonus', 'Welcome bonus for joining RewardMe');
+                userData = defaultUserData;
+                
+                await initializeAppAfterLogin();
+            } catch (error) {
+                console.error("Error saving name:", error);
+                showAlert("Could not save name. Please try again.");
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        async function handleAuthStateChange(user) {
+            loader.style.display = 'flex';
+            if (user) {
+                currentUser = user;
+                
+                if (configUnsubscribe) configUnsubscribe();
+                configUnsubscribe = onSnapshot(doc(db, "config", "main"), async (docSnapshot) => {
+                    const defaultConfig = { 
+                        dailyAdLimit: 20,
+                        referralRules: ["Your friend signs up.", "Bonus is credited after they apply the code."],
+                        socialLinks: [{ name: 'Telegram', icon: 'send', link: '#' }],
+                        sliderBanners: [{ img: "https://placehold.co/600x280/e84393/ffffff?text=Welcome", link: "#" }],
+                        paymentMethods: ["UPI"], minWithdrawal: 5000,
+                        watchAdSpecialTaskCount: 5, watchAdSpecialTaskReward: 100, watchAdSpecialTaskTimer: 30
+                    };
+                    appConfig = docSnapshot.exists() ? { ...defaultConfig, ...docSnapshot.data() } : defaultConfig;
+                    
+                    if (userData && userData.name) {
+                        populateAllPages();
+                        initSlider();
+                        if(currentPageId) navigateTo(currentPageId); 
+                    }
+                });
+
+                await fetchUserData();
+
+                if (userData && userData.isBlocked) {
+                    document.body.innerHTML = `<div class="h-screen flex items-center justify-center text-center p-4"><div style="animation: zoomIn 0.5s ease-out;"><h1 class="text-2xl font-bold text-red-500">Account Blocked</h1><p class="text-gray-300">Your account has been blocked.</p></div></div>`;
+                    loader.style.display = 'none';
+                    return;
+                }
+
+                if (userData && userData.name) {
+                    await initializeAppAfterLogin();
+                } else {
+                    showMainPage('name-prompt-section');
+                    lucide.createIcons();
+                }
+            } else {
+                try { await signInAnonymously(auth); } 
+                catch (error) { showAlert("Connection error. Please refresh."); }
+            }
+            loader.style.display = 'none';
+        }
+
+        async function initializeAppAfterLogin() {
+            // This function is a placeholder for any logic needed after login.
+            // For example, initializing notifications.
+            populateAllPages();
+            await resetDailyTasksIfNeeded();
+            updateAllUI();
+            initSlider();
+            showMainPage('app-container');
+            navigateTo('home-page');
+        }
+
+        async function fetchUserData() {
+            if (!currentUser) return;
+            const userRef = doc(db, "users", currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            userData = userSnap.exists() ? userSnap.data() : null;
+        }
+
+        async function logTransaction(amount, type, description) {
+            if (!currentUser) return;
+            try {
+                await addDoc(collection(db, "users", currentUser.uid, "transactions"), {
+                    amount, type, description,
+                    timestamp: serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error logging transaction:", error);
+            }
+        }
+
+        async function resetDailyTasksIfNeeded() {
+            const today = new Date().toISOString().slice(0, 10);
+            if (userData.lastAdWatchDate !== today) {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    dailyAdCount: 0,
+                    lastAdWatchDate: today
+                });
+                userData.dailyAdCount = 0;
+                userData.lastAdWatchDate = today;
+            }
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('save-name-btn').addEventListener('click', handleSaveName);
+            document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); navigateTo(link.dataset.page); }));
+        }
+
+        // --- UI POPULATION & UPDATES ---
+        function updateAllUI() {
+            if (!userData) return;
+            document.getElementById('header-profile-name').textContent = `Hi, ${userData.name}`;
+            document.getElementById('header-coin-balance').textContent = userData.balance;
+            const profileInitial = userData.name ? userData.name.charAt(0).toUpperCase() : 'A';
+            document.getElementById('profile-picture').src = `https://placehold.co/50x50/f5af19/ffffff?text=${profileInitial}`;
+        }
+        
+        function populateAllPages() {
+            const dynamicContent = {
+                'home-page': `<div id="slider-container" class="mb-6"></div><div class="grid grid-cols-2 gap-5"><div onclick="navigateTo('color-game-page')" class="feature-btn"><i data-lucide="palette" class="w-12 h-12 icon"></i><span class="text">Color Game</span></div><div onclick="claimReward()" class="feature-btn"><i data-lucide="youtube" class="w-12 h-12 icon"></i><span class="text">Watch & Earn</span></div><div onclick="navigateTo('visit-earn-page')" class="feature-btn"><i data-lucide="globe" class="w-12 h-12 icon"></i><span class="text">View & Win</span></div><div onclick="navigateTo('social-tasks-page')" class="feature-btn"><i data-lucide="thumbs-up" class="w-12 h-12 icon"></i><span class="text">Social Tasks</span></div></div>`,
+                'history-page': `<div><h2 class="text-2xl font-bold mb-4">Transaction History</h2><div id="history-list">No transactions yet.</div></div>`,
+                'notifications-page': `<div><h2 class="text-2xl font-bold mb-4">Notifications</h2><div id="notifications-list">No notifications yet.</div></div>`,
+                'color-game-page': `<div><h2 class="text-2xl font-bold mb-4">Color Game</h2><p>Guess the color and win!</p></div>`,
+                'visit-earn-page': `<div><h2 class="text-2xl font-bold mb-4">Visit & Earn</h2><p>Visit websites to earn rewards.</p></div>`,
+                'social-tasks-page': `<div><h2 class="text-2xl font-bold mb-4">Social Tasks</h2><p>Complete social media tasks.</p></div>`,
+                'wallet-page': `<div><h2 class="text-2xl font-bold mb-4">My Wallet</h2><p>Your balance is: ${userData?.balance || 0} coins.</p></div>`,
+                'refer-page': `<div><h2 class="text-2xl font-bold mb-4">Refer & Earn</h2><p>Your referral code: <strong>${userData?.referralCode || 'N/A'}</strong></p></div>`,
+                'profile-page': `<div><h2 class="text-2xl font-bold mb-4">Profile</h2><p>Name: ${userData?.name || 'User'}</p></div>`,
+            };
+
+            for (const pageId in dynamicContent) {
+                const container = document.getElementById(pageId);
+                if (container) container.innerHTML = dynamicContent[pageId];
+            }
+
+            // Populate popups
+            document.getElementById('color-game-popup').innerHTML = `<div class="card-bg p-6 w-full max-w-sm text-center space-y-4" style="animation: zoomIn 0.3s ease-out;"><h3 class="text-xl font-bold text-yellow-400">Correct Answer!</h3><p>Congratulations! Watch an ad to claim ${appConfig.colorGameReward || 10} coins.</p><div class="flex justify-center space-x-4"><button onclick="claimColorGameReward()" class="btn-accent px-6 py-2">Claim</button><button onclick="document.getElementById('color-game-popup').classList.add('hidden');" class="bg-gray-600 text-white px-6 py-2 rounded-lg">Later</button></div></div>`;
+            document.getElementById('ad-click-task-popup').innerHTML = `<div class="card-bg p-6 w-full max-w-sm text-center space-y-4" style="animation: zoomIn 0.3s ease-out;"><h3 class="text-xl font-bold text-yellow-400">Special Bonus Task!</h3><div class="text-left space-y-2"><p>1. Click 'Watch Ad' below.</p><p>2. IMPORTANT: Click on any ad shown.</p><p>3. Wait for the timer to finish.</p><p>4. Get your bonus reward!</p></div><button class="btn-accent w-full p-3 mt-4">Watch Ad & Click</button></div>`;
+
+            lucide.createIcons();
+        }
+
+        function initSlider() {
+            const sliderContainer = document.getElementById('slider-container');
+            if (!sliderContainer || !appConfig.sliderBanners || appConfig.sliderBanners.length === 0) return;
+            
+            let slidesHTML = '';
+            appConfig.sliderBanners.forEach(banner => {
+                slidesHTML += `<a href="${banner.link}" target="_blank"><img src="${banner.img}" class="w-full h-full object-cover"></a>`;
+            });
+            sliderContainer.innerHTML = slidesHTML;
+            // Basic slider logic can be added here if multiple images are supported
+        }
+
+        // --- DUMMY/PLACEHOLDER FUNCTIONS ---
+        // These functions need to be implemented with your app's logic
+        function claimReward() {
+            showAlert("Watch & Earn feature coming soon!");
+        }
+        window.claimReward = claimReward;
+        
+        function claimColorGameReward() {
+            document.getElementById('color-game-popup').classList.add('hidden');
+            showAlert("Reward claimed! (Feature in development)");
+        }
+        window.claimColorGameReward = claimColorGameReward;
+
+    </script>
+</body>
+</html>
