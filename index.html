@@ -457,25 +457,31 @@
             }
         }
         
-        async function showAd() {
-            return new Promise((resolve, reject) => {
-                if (typeof show_show_10038129 === 'function') {
-                    try {
-                        console.log("Attempting to show Monetag ad.");
-                        show_show_10038129();
-                        setTimeout(() => resolve(true), 1500); 
-                    } catch (e) {
-                        console.error("Monetag ad failed to start.", e);
-                        reject("Ad could not be displayed.");
-                    }
-                } else {
-                    console.error("Monetag SDK function not found.");
-                    reject("Ads are not available right now. Please try again later.");
-                }
-            });
-        }
         
-        window.startGame = function() { const r = Math.floor(Math.random() * 256); const g = Math.floor(Math.random() * 256); const b = Math.floor(Math.random() * 256); correctColor = `rgb(${r}, ${g}, ${b})`; document.getElementById('target-color-box').style.backgroundColor = correctColor; document.getElementById('target-color-rgb').textContent = `RGB(${r}, ${g}, ${b})`; const optionsGrid = document.getElementById('color-options-grid'); optionsGrid.innerHTML = ''; const options = [correctColor]; for (let i = 0; i < 8; i++) { const diff = 25 + Math.floor(Math.random() * 25); options.push(`rgb(${Math.max(0,Math.min(255,r+(Math.random()>.5?diff:-diff)))}, ${Math.max(0,Math.min(255,g+(Math.random()>.5?diff:-diff)))}, ${Math.max(0,Math.min(255,b+(Math.random()>.5?diff:-diff)))})`); } options.sort(() => Math.random() - 0.5); options.forEach(color => { const optionBox = document.createElement('div'); optionBox.className = 'color-option w-full h-20 rounded-lg cursor-pointer transition transform hover:scale-105 border-2 border-transparent'; optionBox.style.backgroundColor = color; optionBox.dataset.color = color; optionBox.addEventListener('click', handleColorPick); optionsGrid.appendChild(optionBox); }); }
+        window.startGame = function() { const r = Math.floor(Math.random() * 256); const g = Math.floor(Math.random() * 256); const b = Math.floor(Math.random() * 256); correctColor = `rgb(${r}, ${g}, ${b})`; document.getElementById('target-color-box').style.backgroundColor = correctColor; document.getElementById('target-color-rgb').textContent = `RGB(${r}, ${g}, ${b})`; const optionsGrid = document.getElementById('color-options-grid'); optionsGrid.innerHTML = ''; const options = [correctColor]; for (let i = 0; i < 8; i++) { const diff = 25 + Math.floor(Math.random() * 25); options.push(`rgb(${Math.max(0,Math.min(255,r+(Math.random()>.5?diff:-diff)))}, ${Math.max(0,Math.min(255,g+(Math.random()>.5?diff:-diff)))}, ${Math.max(0,Math.min(255,b+(Math.random()>.5?diff:-diff)))})`); } options.sort(() => Math.random() - 0.5); options.forEach(color => { const optionBox = document.createElement('div'); optionBoxasync function showAd() {
+    return new Promise((resolve, reject) => {
+        // Check if the ad network's function is available
+        if (typeof show_show_10038129 === 'function') {
+            try {
+                console.log("Attempting to show Monetag ad.");
+                // Call the ad function
+                show_show_10038129();
+                
+                // Assume the ad started successfully after a short delay.
+                // NOTE: This is not ideal. A better approach would be to use
+                // a callback from the ad SDK if one is available.
+                setTimeout(() => resolve(true), 1500); 
+
+            } catch (e) {
+                console.error("Monetag ad failed to start.", e);
+                reject("Ad could not be displayed.");
+            }
+        } else {
+            console.error("Monetag SDK function not found.");
+            reject("Ads are not available right now. Please try again later.");
+        }
+    });
+    }.className = 'color-option w-full h-20 rounded-lg cursor-pointer transition transform hover:scale-105 border-2 border-transparent'; optionBox.style.backgroundColor = color; optionBox.dataset.color = color; optionBox.addEventListener('click', handleColorPick); optionsGrid.appendChild(optionBox); }); }
         
         window.claimReward = async function() { 
             if (appConfig.dailyAdLimit > 0 && userData.dailyAdCount >= appConfig.dailyAdLimit) {
@@ -556,6 +562,7 @@
     </script>
 </body>
 </html>
+
 
 
 
