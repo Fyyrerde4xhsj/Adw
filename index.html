@@ -6,7 +6,52 @@
     <title>RewardMe App</title>
     
     <script src='//libtl.com/sdk.js' data-zone='10038129' data-sdk='show_10038129'></script>
-    
+    <script>
+
+        async function showAd(taskType) {
+    let attempts = 0;
+
+    // ✅ Wait for SDK (correct ID)
+    while (typeof window.show_10038129 !== 'function' && attempts < 5) {
+        await new Promise(res => setTimeout(res, 1000));
+        attempts++;
+    }
+
+    if (typeof window.show_10038129 !== 'function') {
+        return showAlert("Ad service abhi uplabdh nahi hai. Kripya baad mein prayas karein.");
+    }
+
+    let adPromise;
+    switch (taskType) {
+        case 'interstitial':
+            adPromise = window.show_10038129();
+            break;
+        case 'popup':
+            adPromise = window.show_10038129('pop');
+            break;
+        case 'inApp':
+            adPromise = window.show_10038129({
+                type: 'inApp',
+                inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+            });
+            break;
+        case 'miniApp':
+            adPromise = window.show_10038129();
+            break;
+        default:
+            return;
+    }
+
+    if (adPromise && typeof adPromise.then === 'function') {
+        adPromise.then(() => {
+            console.log("✅ Ad shown successfully");
+        }).catch(err => {
+            console.error("❌ Ad failed:", err);
+            showAlert("Ad load hone mein samasya hui, kripya fir se koshish karein.");
+        });
+    }
+}
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -556,6 +601,7 @@
     </script>
 </body>
 </html>
+
 
 
 
