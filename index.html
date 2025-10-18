@@ -501,14 +501,26 @@ async function showAd(taskType) {
             }
         }
         
-        async function showAd() {
-            return new Promise((resolve, reject) => {
-                if (typeof show_show_10038129 === 'function') {
-                    try {
-                        console.log("Attempting to show Monetag ad.");
-                        show_show_10038129();
-                        setTimeout(() => resolve(true), 1500); 
-                    } catch (e) {
+        if (typeof window.show_10038129 !== 'function') {
+                return showAlert("Ad service abhi uplabdh nahi hai. Kripya baad mein prayas karein.");
+            }
+            
+            let adPromise;
+            switch(taskType) {
+                case 'interstitial':
+                    adPromise = window.show_10038129();
+                    break;
+                case 'popup':
+                    adPromise = window.show_10038129('pop');
+                    break;
+                case 'inApp':
+                    adPromise = window.show_10038129({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+                    break;
+                case 'miniApp':
+                    adPromise = window.show_10038129();
+                    break;
+                default:
+                    return; {
                 }
             });
         }
@@ -594,6 +606,7 @@ async function showAd(taskType) {
     </script>
 </body>
 </html>
+
 
 
 
