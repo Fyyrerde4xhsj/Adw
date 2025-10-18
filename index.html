@@ -1,35 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Ad Test</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RewardMe Fixed Ads</title>
 </head>
 <body>
-  <h2>Testing RewardMe Ads</h2>
+  <h2>RewardMe Ad Test</h2>
   <button onclick="showAd('interstitial')">Show Ad</button>
 
+  <!-- 🔹 Load SDK FIRST -->
   <script src="//libtl.com/sdk.js" data-zone="10038129" data-sdk="show_10038129"></script>
+
+  <!-- 🔹 Then load your ad control script -->
   <script>
     async function showAd(taskType) {
-      let attempts = 0;
-      while (typeof window.show_10038129 !== 'function' && attempts < 10) {
-        await new Promise(r => setTimeout(r, 1000));
-        attempts++;
-      }
-      if (typeof window.show_10038129 !== 'function') {
-        alert("SDK not loaded yet");
-        return;
-      }
-
       try {
-        const ad = window.show_10038129();
-        if (ad && typeof ad.then === 'function') await ad;
-        console.log("✅ Ad shown");
-      } catch (e) {
-        console.error(e);
-        alert("No ads available right now");
+        // Wait until SDK function appears
+        for (let i = 0; i < 15; i++) {
+          if (typeof window.show_10038129 === "function") break;
+          await new Promise(res => setTimeout(res, 1000));
+        }
+
+        // If SDK still missing, stop here
+        if (typeof window.show_10038129 !== "function") {
+          alert("⚠️ Ad service not ready yet. Please refresh and try again.");
+          return;
+        }
+
+        // ✅ Properly call ad
+        let adPromise;
+
+        switch (taskType) {
+          case "popup":
+            adPromise = window.show_10038129("pop");
+            break;
+          case "inApp":
+            adPromise = window.show_10038129({
+              type: "inApp",
+              inAppSettings: {
+                frequency: 1,
+                capping: 0,
+                interval: 30,
+                timeout: 5,
+                everyPage: false,
+              },
+            });
+            break;
+          default:
+            adPromise = window.show_10038129(); // interstitial or default
+        }
+
+        // ✅ Handle ad promise correctly
+        if (adPromise && typeof adPromise.then === "function") {
+          await adPromise;
+          console.log("✅ Ad completed");
+        } else {
+          console.log("⚠️ No ad promise returned");
+        }
+      } catch (err) {
+        console.error("❌ Ad error:", err);
+        alert("Ads are not available right now. Please try again later.");
       }
-    }<button onclick="showAd('interstitial')" class="btn-accent px-6 py-3">Test Ad</button>
+    }
   </script>
 </body>
 </html>
@@ -586,6 +619,7 @@
     </script>
 </body>
 </html>
+
 
 
 
