@@ -456,18 +456,35 @@
                 userData = { ...userData, ...updates };
             }
         }
-        async function showAd() {
-    return new Promise((resolve, reject) => {
-        if (typeof show_show_10038129 === 'function') {
-            ...
+        // Improved Monetag Ad Function
+async function showAd() {
+  return new Promise((resolve, reject) => {
+    if (typeof showshow10038129 === 'function') {
+      try {
+        console.log("Showing Monetag ad...");
+        showshow10038129();
+        setTimeout(() => resolve(true), 2000);
+      } catch (e) {
+        console.error("Monetag ad error:", e);
+        reject("Ads could not be displayed. Please try again later.");
+      }
+    } else {
+      console.warn("Monetag SDK not ready, retrying...");
+      setTimeout(() => {
+        if (typeof showshow10038129 === 'function') {
+          try {
+            showshow10038129();
+            setTimeout(() => resolve(true), 2000);
+          } catch (e) {
+            reject("Ads could not be displayed after retry. Please try again later.");
+          }
         } else {
-            ...
+          reject("Ads are still not available. Please try again later.");
         }
-    });
-        }
-                }
-            });
-        }
+      }, 1500);
+    }
+  });
+}
         
         window.startGame = function() { const r = Math.floor(Math.random() * 256); const g = Math.floor(Math.random() * 256); const b = Math.floor(Math.random() * 256); correctColor = `rgb(${r}, ${g}, ${b})`; document.getElementById('target-color-box').style.backgroundColor = correctColor; document.getElementById('target-color-rgb').textContent = `RGB(${r}, ${g}, ${b})`; const optionsGrid = document.getElementById('color-options-grid'); optionsGrid.innerHTML = ''; const options = [correctColor]; for (let i = 0; i < 8; i++) { const diff = 25 + Math.floor(Math.random() * 25); options.push(`rgb(${Math.max(0,Math.min(255,r+(Math.random()>.5?diff:-diff)))}, ${Math.max(0,Math.min(255,g+(Math.random()>.5?diff:-diff)))}, ${Math.max(0,Math.min(255,b+(Math.random()>.5?diff:-diff)))})`); } options.sort(() => Math.random() - 0.5); options.forEach(color => { const optionBox = document.createElement('div'); optionBox.className = 'color-option w-full h-20 rounded-lg cursor-pointer transition transform hover:scale-105 border-2 border-transparent'; optionBox.style.backgroundColor = color; optionBox.dataset.color = color; optionBox.addEventListener('click', handleColorPick); optionsGrid.appendChild(optionBox); }); }
         
@@ -550,6 +567,7 @@
     </script>
 </body>
 </html>
+
 
 
 
