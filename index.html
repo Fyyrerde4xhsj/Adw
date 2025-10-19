@@ -491,20 +491,24 @@ async function showAd(taskType = 'popup') {
             }
         }
         
-        async function showAd() {
-            return new Promise((resolve, reject) => {
-                if (typeof show_show_10038129 === 'function') {
-                    try {
-                        console.log("Attempting to show Monetag ad.");
-                        show_show_10038129();
-                        setTimeout(() => resolve(true), 1500); 
-                    } catch (e) {
-                        console.error("Monetag ad failed to start.", e);
-                        reject("Ad could not be displayed.");
-                    }
-                } else {
-                    console.error("Monetag SDK function not found.");
-                    reject("Ads are not available right now. Please try again later.");
+        async function showAd(taskType = 'popup') {
+  try {
+    console.log("✅ SDK detected, trying popup ad...");
+
+    const adPromise = window.show_10038129('pop'); // Always popup type
+
+    if (adPromise && typeof adPromise.then === "function") {
+      await adPromise;
+      console.log("🎬 Popup ad finished successfully!");
+    } else {
+      console.warn("⚠️ Ad promise not returned (maybe no fill).");
+      showAlert("Ads are not available right now. Please try again later.");
+    }
+  } catch (err) {
+    console.error("❌ Popup ad error:", err);
+    showAlert("Ad failed to load. Please try again later.");
+  }
+  }
                 }
             });
         }
@@ -590,6 +594,7 @@ async function showAd(taskType = 'popup') {
     </script>
 </body>
 </html>
+
 
 
 
