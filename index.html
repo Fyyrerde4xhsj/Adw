@@ -456,32 +456,14 @@
                 userData = { ...userData, ...updates };
             }
         }
-        <div onclick="showAd('popup')" class="feature-btn">
-  <i data-lucide="youtube" class="w-12 h-12 icon"></i>
-  <span class="text">Watch & Earn</span>
-</div>
-
-<div onclick="showAd('popup')" class="feature-btn">
-  <i data-lucide="palette" class="w-12 h-12 icon"></i>
-  <span class="text">Color Game</span>
-</div>
-        async function showAd(taskType = 'popup') {
-  try {
-    console.log("✅ SDK detected, trying popup ad...");
-
-    const adPromise = window.show_10038129('pop'); // Always popup type
-
-    if (adPromise && typeof adPromise.then === "function") {
-      await adPromise;
-      console.log("🎬 Popup ad finished successfully!");
-    } else {
-      console.warn("⚠️ Ad promise not returned (maybe no fill).");
-      showAlert("Ads are not available right now. Please try again later.");
-    }
-  } catch (err) {
-    console.error("❌ Popup ad error:", err);
-    showAlert("Ad failed to load. Please try again later.");
-  }
+        async function showAd() {
+    return new Promise((resolve, reject) => {
+        if (typeof show_show_10038129 === 'function') {
+            ...
+        } else {
+            ...
+        }
+    });
         }
                 }
             });
@@ -568,6 +550,7 @@
     </script>
 </body>
 </html>
+
 
 
 
