@@ -479,7 +479,8 @@ async function showAd() {
             reject("Ads could not be displayed after retry. Please try again later.");
           }
         } else {
-          reject("Ads are still not available. Please try again later.");
+          reject(" <button onclick="document.getElementById('custom-alert').classList.add('hidden')" class="btn-accent px-6 py-2">OK</button>
+    </div>");
         }
       }, 1500);
     }
@@ -567,6 +568,7 @@ async function showAd() {
     </script>
 </body>
 </html>
+
 
 
 
