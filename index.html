@@ -1,180 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Manga/Manhwa Video Search</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', Arial, sans-serif;
-      background: linear-gradient(135deg, #003087, #082e45);
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-    }
-    .container {
-      width: 100%;
-      max-width: 400px;
-      margin-top: 60px;
-      background: rgba(10,11,40,0.85);
-      border-radius: 18px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.23);
-      padding: 28px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .logo {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 18px;
-      background: url('your_logo_url.png') no-repeat center center;
-      background-size: contain;
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-    .about {
-      margin-bottom: 22px;
-      font-size: 1.07rem;
-      color: #d6d6f4;
-    }
-    .form-group {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    input[type="text"], select {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 14px;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-      outline: none;
-      background: #f5f7ff;
-      color: #30336b;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #fd6605;
-      color: #fff;
-      font-size: 1.07rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.18s;
-    }
-    button:hover {
-      background: #bb5202;
-    }
-    #videoResults {
-      width: 100%;
-      margin-top: 26px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-    }
-    .video {
-      background: #222945;
-      border-radius: 12px;
-      padding: 10px 8px 8px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 130px;
-    }
-    .video img {
-      width: 112px;
-      height: 64px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.21);
-    }
-    .video-title {
-      font-size: 0.89rem;
-      text-align: center;
-      color: #e0e0ff;
-      min-height: 34px;
-    }
-    @media (max-width: 540px) {
-      .container {
-        margin-top: 22px;
-        padding: 14px;
-      }
-      .video {
-        width: 100px;
-      }
-      .video img {
-        width: 82px;
-        height: 48px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manhwa Finder</title>
+<style>
+  body {
+    background-color: #0f0f0f;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 { color: #00ffff; }
+  #searchContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  input, select, button {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+  }
+  input {
+    width: 60%;
+    background: #1a1a1a;
+    color: #fff;
+  }
+  select, button {
+    background: #00ffff;
+    color: #000;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .video-card {
+    background: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s;
+  }
+  .video-card:hover {
+    transform: scale(1.05);
+  }
+  .video-card img {
+    width: 100%;
+    height: auto;
+  }
+  .video-card h4 {
+    padding: 10px;
+    color: #00ffff;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo"></div>
-    <h1>Manga/Manhwa Video Search</h1>
-    <div class="about">
-      Find YouTube videos explaining your favorite manga and manhwa. Enter a keyword and select your language!
-    </div>
-    <form id="searchForm" class="form-group">
-      <input type="text" id="searchQuery" placeholder="Enter manga/manhwa name" required />
-      <select id="languageSelect">
-        <option value="en">English</option>
-        <option value="hi">हिंदी</option>
-        <option value="bn">বাংলা</option>
-      </select>
-      <button type="submit">Find Videos</button>
-    </form>
-    <div id="videoResults"></div>
+  <h1>🎥 Manhwa & Manga Finder</h1>
+  <div id="searchContainer">
+    <input type="text" id="searchInput" placeholder="Search Manhwa or Manga...">
+    <select id="language">
+      <option value="Hindi">Hindi</option>
+      <option value="English">English</option>
+    </select>
+    <button onclick="searchYouTube()">Search</button>
   </div>
+  <div id="videos" class="video-grid"></div>
+
   <script>
-    const searchForm = document.getElementById('searchForm');
-    const videoResults = document.getElementById('videoResults');
+  async function searchYouTube() {
+    const query = document.getElementById('searchInput').value.trim();
+    const language = document.getElementById('language').value;
+    if (!query) return alert("Please enter a Manhwa or Manga name!");
 
-    searchForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const query = document.getElementById('searchQuery').value.trim();
-      const language = document.getElementById('languageSelect').value;
+    const apiKey = "YOUR_API_KEY"; // replace with your key
+    const searchTerm = `${query} manhwa ${language} explanation`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchTerm)}&type=video&maxResults=9&key=${apiKey}`;
 
-      if (!query) return;
-      videoResults.innerHTML = 'Loading...';
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const container = document.getElementById('videos');
+      container.innerHTML = "";
 
-      try {
-        const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&lang=${language}`);
-        const data = await response.json();
-        if (data.items && data.items.length > 0) {
-          videoResults.innerHTML = '';
-          data.items.forEach(item => {
-            const videoDiv = document.createElement('div');
-            videoDiv.classList.add('video');
-            videoDiv.innerHTML = `
-              <a href="https://www.youtube.com/watch?v=${item.id.videoId}&theme=dark" target="_blank">
-                <img src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}" />
-                <div class="video-title">${item.snippet.title}</div>
-              </a>`;
-            videoResults.appendChild(videoDiv);
-          });
-        } else {
-          videoResults.innerHTML = 'No videos found.';
-        }
-      } catch (err) {
-        videoResults.innerHTML = 'Error, please try again.';
-      }
-    });
+      data.items.forEach(item => {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const thumbnail = item.snippet.thumbnails.medium.url;
+
+        const card = document.createElement('div');
+        card.className = "video-card";
+        card.innerHTML = `
+          <img src="${thumbnail}" alt="${title}">
+          <h4>${title}</h4>
+        `;
+        card.onclick = () => window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank");
+        container.appendChild(card);
+      });
+
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load videos. Please check your API key or try again.");
+    }
+  }
   </script>
 </body>
 </html>
