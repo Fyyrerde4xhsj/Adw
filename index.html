@@ -2,57 +2,145 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Manga Manhwa Video Search</title>
+  <title>Manga/Manhwa Video Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #121212; /* dark theme background */
-      color: #eee;
-      padding: 20px;
+      margin: 0;
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(135deg, #003087, #082e45);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
-    #searchForm {
-      margin-bottom: 20px;
+    .container {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 60px;
+      background: rgba(10,11,40,0.85);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.23);
+      padding: 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    select, input[type="text"], button {
-      font-size: 16px;
-      padding: 8px;
-      margin-right: 10px;
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 18px;
+      background: url('your_logo_url.png') no-repeat center center;
+      background-size: contain;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    .about {
+      margin-bottom: 22px;
+      font-size: 1.07rem;
+      color: #d6d6f4;
+    }
+    .form-group {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      outline: none;
+      background: #f5f7ff;
+      color: #30336b;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #fd6605;
+      color: #fff;
+      font-size: 1.07rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    button:hover {
+      background: #bb5202;
+    }
+    #videoResults {
+      width: 100%;
+      margin-top: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
     }
     .video {
-      display: inline-block;
-      margin: 10px;
-      cursor: pointer;
+      background: #222945;
+      border-radius: 12px;
+      padding: 10px 8px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 130px;
     }
     .video img {
-      width: 200px;
-      height: 120px;
+      width: 112px;
+      height: 64px;
       object-fit: cover;
       border-radius: 8px;
+      margin-bottom: 6px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.21);
     }
     .video-title {
-      max-width: 200px;
-      font-size: 14px;
-      margin-top: 5px;
-      color: #ccc;
+      font-size: 0.89rem;
+      text-align: center;
+      color: #e0e0ff;
+      min-height: 34px;
+    }
+    @media (max-width: 540px) {
+      .container {
+        margin-top: 22px;
+        padding: 14px;
+      }
+      .video {
+        width: 100px;
+      }
+      .video img {
+        width: 82px;
+        height: 48px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>[translate:Manga Manhwa वीडियो खोज]</h1>
-  
-  <form id="searchForm">
-    <input type="text" id="searchQuery" placeholder="[translate:खोजें]" required />
-    <select id="languageSelect">
-      <option value="en">English</option>
-      <option value="hi">[translate:हिंदी]</option>
-      <option value="bn">[translate:বাংলা]</option>
-      <!-- Add more languages as needed -->
-    </select>
-    <button type="submit">[translate:खोज]</button>
-  </form>
-  
-  <div id="videoResults"></div>
-
+  <div class="container">
+    <div class="logo"></div>
+    <h1>Manga/Manhwa Video Search</h1>
+    <div class="about">
+      Find YouTube videos explaining your favorite manga and manhwa. Enter a keyword and select your language!
+    </div>
+    <form id="searchForm" class="form-group">
+      <input type="text" id="searchQuery" placeholder="Enter manga/manhwa name" required />
+      <select id="languageSelect">
+        <option value="en">English</option>
+        <option value="hi">हिंदी</option>
+        <option value="bn">বাংলা</option>
+      </select>
+      <button type="submit">Find Videos</button>
+    </form>
+    <div id="videoResults"></div>
+  </div>
   <script>
     const searchForm = document.getElementById('searchForm');
     const videoResults = document.getElementById('videoResults');
@@ -63,7 +151,7 @@
       const language = document.getElementById('languageSelect').value;
 
       if (!query) return;
-      videoResults.innerHTML = '[translate:लोड हो रहा है...]';
+      videoResults.innerHTML = 'Loading...';
 
       try {
         const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&lang=${language}`);
@@ -74,17 +162,17 @@
             const videoDiv = document.createElement('div');
             videoDiv.classList.add('video');
             videoDiv.innerHTML = `
-              <a href="https://www.youtube.com/watch?v=${item.id.videoId}&theme=dark" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.youtube.com/watch?v=${item.id.videoId}&theme=dark" target="_blank">
                 <img src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}" />
                 <div class="video-title">${item.snippet.title}</div>
               </a>`;
             videoResults.appendChild(videoDiv);
           });
         } else {
-          videoResults.innerHTML = '[translate:कोई वीडियो नहीं मिला।]';
+          videoResults.innerHTML = 'No videos found.';
         }
       } catch (err) {
-        videoResults.innerHTML = '[translate:त्रुटि हुई, कृपया पुनः प्रयास करें।]';
+        videoResults.innerHTML = 'Error, please try again.';
       }
     });
   </script>
