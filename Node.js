@@ -5,7 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Replace with your actual Google YouTube API key
-const API_KEY = 'AIzaSyCnfuMwlB3o0S4_MpNUHEOXN7Vs4bDeb9Q';
+const API_KEY = 'AIzaSyA1ReMCRRpSnzW8DYlWfQE4j52N0wd6hx4';
 
 app.use(express.static('public')); // Serve frontend files if using separate folder
 
