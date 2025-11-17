@@ -453,26 +453,30 @@
         }
 
         window.shareReferralCode = function() {
-  const shareText = `Join RewardMe and earn money! Use my code ${userData.referralCode} to get a bonus.`;
+  const botUsername = 'Earenmebot'; // <-- put your bot username here, without @
+  const botLink = `https://t.me/{Earenme_bot}`;
+  const shareText =
+`🎁 Join RewardMe and earn money!
+Use my referral code: ${userData.referralCode}
+Join here: ${botLink}`;
 
   if (navigator.share) {
     navigator.share({
       title: 'Join RewardMe!',
       text: shareText,
-      url: window.location.href,
+      url: botLink,
     }).catch(console.error);
   } else {
-    // Fallback: copy code, notify user
+    // fallback: copy text
     navigator.clipboard.writeText(shareText)
       .then(() => {
-        showAlert("Sharing not supported in this browser. Referral code copied! Paste into Telegram or any app to share.");
+        showAlert("Sharing not supported in this browser. Referral code and link copied! Paste and send to your friends in Telegram or WhatsApp.");
       })
       .catch(() => {
-        showAlert("Could not copy code. Please copy and share your code manually.");
+        showAlert("Could not copy code. Please copy and share manually.");
       });
   }
 }
-
         
         async function updateBalance(amount, type, description) { 
             if (!currentUser || amount === 0) return; 
@@ -1000,6 +1004,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
