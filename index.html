@@ -477,7 +477,8 @@ Join here: ${botLink}`;
       });
   }
 }
-        
+
+
         async function updateBalance(amount, type, description) { 
             if (!currentUser || amount === 0) return; 
             const newBalance = (userData.balance || 0) + amount; 
@@ -1004,6 +1005,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
