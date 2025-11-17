@@ -453,13 +453,26 @@
         }
 
         window.shareReferralCode = function() {
-             const shareText = `Join RewardMe and earn money! Use my code ${userData.referralCode} to get a bonus.`;
-            if (navigator.share) {
-                navigator.share({ title: 'Join RewardMe!', text: shareText, url: window.location.href }).catch(console.error);
-            } else {
-                showAlert('Share feature not available on this browser.');
-            }
-        }
+  const shareText = `Join RewardMe and earn money! Use my code ${userData.referralCode} to get a bonus.`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'Join RewardMe!',
+      text: shareText,
+      url: window.location.href,
+    }).catch(console.error);
+  } else {
+    // Fallback: copy code, notify user
+    navigator.clipboard.writeText(shareText)
+      .then(() => {
+        showAlert("Sharing not supported in this browser. Referral code copied! Paste into Telegram or any app to share.");
+      })
+      .catch(() => {
+        showAlert("Could not copy code. Please copy and share your code manually.");
+      });
+  }
+}
+
         
         async function updateBalance(amount, type, description) { 
             if (!currentUser || amount === 0) return; 
@@ -987,6 +1000,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
