@@ -888,25 +888,26 @@ await updateDoc(doc(db, "users", currentUser.uid), {
   const button = e.target.closest('button');
   const link = button.dataset.link;
   const reward = parseInt(button.dataset.reward);
-  const timer = parseInt(button.dataset.timer) || 60; // Default to 60 if blank
+  const timer = parseInt(button.dataset.timer) || 60; // 60 seconds minimum
 
   button.disabled = true;
   loader.style.display = "flex";
-  await showAd(); // If you want ad before visit (else remove this line)
+  // Optional: await showAd(); // If you want to show an ad before visiting
   loader.style.display = "none";
 
+  // Start timer
   let start = Date.now();
-  // Open in new tab
-  const newTab = window.open(link, "_blank");
+  const newTab = window.open(link, "_blank"); // Open site
 
-  // Poll every half second to check if tab is closed
+  // Check if tab closed
   let closedCheck = setInterval(async () => {
     if (newTab.closed) {
       clearInterval(closedCheck);
       let diff = Math.floor((Date.now() - start) / 1000);
       if (diff >= timer) {
-        // Reward now!
+        // Give reward!
         await updateBalance(reward, "Website Visit", `Visited ${link}`);
+        // Mark as visited so button disables
         const visited = [...(userData.visitedWebsitesToday || []), link];
         await updateDoc(doc(db, "users", currentUser.uid), {
           visitedWebsitesToday: visited,
@@ -917,35 +918,12 @@ await updateDoc(doc(db, "users", currentUser.uid), {
         button.classList.add('bg-gray-500');
         showAlert(`Congratulations! You earned ${reward} coins for visiting.`);
       } else {
-        // Not enough time spent
         button.disabled = false;
         button.textContent = "Visit Again";
         showAlert(`Please stay at least ${timer} seconds to earn coins!`);
       }
     }
   }, 500);
-}
-
-
-      newTab.close();
-
-      await updateBalance(reward, "Website Visit", `Verified ${link}`);
-
-      const visited = [...(userData.visitedWebsitesToday || []), link];
-      await updateDoc(doc(db, "users", currentUser.uid), { visitedWebsitesToday: visited });
-      userData.visitedWebsitesToday = visited;
-
-      button.textContent = "Visited";
-      button.classList.remove("btn-accent");
-      button.classList.add("bg-gray-500");
-
-      showAlert(`Congratulations! You earned ${reward} coins for visiting.`);
-    }, timer * 1000);
-  } catch (error) {
-    showAlert(error.toString());
-    button.disabled = false;
-    loader.style.display = "none";
-  }
 }
 
 
@@ -1009,6 +987,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
