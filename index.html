@@ -885,42 +885,47 @@ await updateDoc(doc(db, "users", currentUser.uid), {
         }
 
         async function handleWebsiteVisit(e) {
-  const button = e.target.closest("button");
+  const button = e.target.closest('button');
   const link = button.dataset.link;
   const reward = parseInt(button.dataset.reward);
-  // Set timer to 60 seconds 
-  const timer = 60;
+  const timer = parseInt(button.dataset.timer) || 60; // Default to 60 if blank
 
   button.disabled = true;
   loader.style.display = "flex";
+  await showAd(); // If you want ad before visit (else remove this line)
+  loader.style.display = "none";
 
-  try {
-    await showAd();
-    loader.style.display = "none";
+  let start = Date.now();
+  // Open in new tab
+  const newTab = window.open(link, "_blank");
 
-    const newTab = window.open(link, "_blank");
-    if (!newTab) {
-      button.disabled = false;
-      return showAlert("Please allow popups to continue.");
+  // Poll every half second to check if tab is closed
+  let closedCheck = setInterval(async () => {
+    if (newTab.closed) {
+      clearInterval(closedCheck);
+      let diff = Math.floor((Date.now() - start) / 1000);
+      if (diff >= timer) {
+        // Reward now!
+        await updateBalance(reward, "Website Visit", `Visited ${link}`);
+        const visited = [...(userData.visitedWebsitesToday || []), link];
+        await updateDoc(doc(db, "users", currentUser.uid), {
+          visitedWebsitesToday: visited,
+        });
+        userData.visitedWebsitesToday = visited;
+        button.textContent = "Visited";
+        button.classList.remove('btn-accent');
+        button.classList.add('bg-gray-500');
+        showAlert(`Congratulations! You earned ${reward} coins for visiting.`);
+      } else {
+        // Not enough time spent
+        button.disabled = false;
+        button.textContent = "Visit Again";
+        showAlert(`Please stay at least ${timer} seconds to earn coins!`);
+      }
     }
+  }, 500);
+}
 
-    button.textContent = `Wait ${timer}s`;
-    let seconds = timer;
-
-    const interval = setInterval(() => {
-      seconds--;
-      button.textContent = `Wait ${seconds}s`;
-    }, 1000);
-
-    setTimeout(async () => {
-      clearInterval(interval);
-      button.textContent = "Verifying...";
-
-      // if (newTab.closed) {
-//   button.disabled = false;
-//   button.textContent = "Visit Again";
-//   return showAlert("You must stay on the site for the full timer to earn coins.");
-// }
 
 
       newTab.close();
@@ -1005,6 +1010,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
