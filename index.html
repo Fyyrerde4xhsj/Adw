@@ -281,11 +281,15 @@
         }
 
         async function fetchUserData() {
-            if (!currentUser) return;
-            const userRef = doc(db, "users", currentUser.uid);
-            const userSnap = await getDoc(userRef);
-            userData = userSnap.exists() ? userSnap.data() : null;
-        }
+  const user = firebase.auth().currentUser; // or use your auth method
+  if (!user) return;
+  const docSnap = await getDoc(doc(db, "users", user.uid));
+  if (!docSnap.exists()) return;
+  const userData = docSnap.data();
+  const refCode = userData.referralCode || userData.referral_code || "";
+  document.getElementById("referral-code-span").textContent = refCode || "Not set";
+}
+
         
         function setupEventListeners() {
             document.getElementById('save-name-btn').addEventListener('click', handleSaveName);
@@ -1012,6 +1016,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
