@@ -872,17 +872,41 @@ await updateDoc(doc(db, "users", currentUser.uid), {
         }
         
         function populateWebsiteList() {
-            const listEl = document.getElementById('website-list');
-            listEl.innerHTML = '';
-            const websites = appConfig.websitesToVisit || [];
-            if (websites.length === 0) { listEl.innerHTML = `<p class="text-center text-gray-400">No tasks available right now.</p>`; return; }
-            websites.forEach(site => { 
-                const isVisited = userData.visitedWebsitesToday?.includes(site.link); 
-                listEl.innerHTML += `<div class="card-bg p-4 rounded-lg flex justify-between items-center"><div class="flex items-center"><i data-lucide="globe" class="w-8 h-8 mr-4 text-yellow-400"></i><div><h3 class="font-semibold">${site.name}</h3><p class="text-sm text-yellow-400">Get ${site.reward} Coins</p></div></div><button data-link="${site.link}" data-reward="${site.reward}" data-timer="${site.timer}" class="visit-btn ${isVisited ? 'bg-gray-500' : 'btn-accent'} px-4 py-2 text-sm rounded-full" ${isVisited ? 'disabled' : ''}>${isVisited ? 'Visited' : 'Visit'}</button></div>`; 
-            });
-            lucide.createIcons();
-            document.querySelectorAll('.visit-btn:not([disabled])').forEach(btn => btn.addEventListener('click', handleWebsiteVisit));
-        }
+  const listEl = document.getElementById('website-list');
+  listEl.innerHTML = '';
+  const websites = appConfig.websitesToVisit;
+  if (websites.length === 0) {
+    listEl.innerHTML = `<p class="text-center text-gray-400">No tasks available right now.</p>`;
+    return;
+  }
+  websites.forEach(site => {
+    const isVisited = userData.visitedWebsitesToday?.includes(site.link);
+    listEl.innerHTML += `
+      <div class="card-bg p-4 rounded-lg flex justify-between items-center">
+        <div class="flex items-center">
+          <i data-lucide="globe" class="w-8 h-8 mr-4 text-yellow-400"></i>
+          <div>
+            <h3 class="font-semibold">${site.name}</h3>
+            <p class="text-sm text-yellow-400">Get ${site.reward} Coins</p>
+          </div>
+        </div>
+        <button 
+          data-link="${site.link}" 
+          data-reward="${site.reward}" 
+          data-timer="${site.timer}" 
+          class="visit-btn ${isVisited ? 'bg-gray-500' : 'btn-accent'} px-4 py-2 text-sm rounded-full"
+          ${isVisited ? 'disabled' : ''}>
+            ${isVisited ? 'Visited' : 'Visit'}
+        </button>
+      </div>
+    `;
+  });
+  lucide.createIcons();
+  document.querySelectorAll('.visit-btn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', handleWebsiteVisit);
+  });
+}
+
 
         async function handleWebsiteVisit(e) {
   const button = e.target.closest('button');
@@ -987,6 +1011,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
