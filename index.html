@@ -75,14 +75,16 @@
     <div id="loader" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"><div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div></div>
 
     <div id="name-prompt-section" class="min-h-screen p-8 flex-col justify-center items-center main-page">
-        <div class="text-center w-full max-w-sm" style="animation: zoomIn 0.5s ease-out;">
-            <i data-lucide="gift" class="w-20 h-20 mx-auto text-yellow-400 mb-4"></i>
-            <h1 class="text-4xl font-extrabold text-white mb-2">Welcome to RewardMe</h1>
-            <p class="text-center text-gray-300 mb-8">Enter your name to get started.</p>
-            <input id="user-name-input" type="text" placeholder="Your Name" class="w-full p-4 rounded-xl input-field mb-4 text-center text-lg">
-            <button id="save-name-btn" class="w-full p-4 btn-accent">Continue</button>
-        </div>
-    </div>
+  <div class="text-center w-full max-w-sm" style="animation: zoomIn 0.5s ease-out;">
+    <i data-lucide="gift" class="w-20 h-20 mx-auto text-yellow-400 mb-4"></i>
+    <h1 class="text-4xl font-extrabold text-white mb-2">Welcome to RewardMe</h1>
+    <p class="text-center text-gray-300 mb-8">Enter your name and email to get started.</p>
+    <input id="user-name-input" type="text" placeholder="Your Name" class="w-full p-4 rounded-xl input-field mb-4 text-center text-lg">
+    <input id="user-email-input" type="email" placeholder="Your Email" class="w-full p-4 rounded-xl input-field mb-4 text-center text-lg">
+    <button id="save-name-btn" class="w-full p-4 btn-accent">Continue</button>
+  </div>
+</div>
+
 
     <div id="app-container" class="min-h-screen flex-col main-page">
         <header class="p-4 flex items-center justify-between">
@@ -185,31 +187,30 @@
         }
         
         async function handleSaveName() {
-            const name = document.getElementById('user-name-input').value.trim();
-            if (name.length < 3) return showAlert("Please enter a name with at least 3 characters.");
-            
-            loader.style.display = 'flex';
-            try {
-                await updateProfile(currentUser, { displayName: name });
-                const ownReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-                const defaultUserData = {
-                    uid: currentUser.uid, name, email: currentUser.email || 'anonymous',
-                    balance: 50, referralCode: ownReferralCode, referredBy: null, referralCount: 0, referralEarnings: 0,
-                    createdAt: serverTimestamp(), isBlocked: false, dailyAdCount: 0, lastAdWatchDate: '1970-01-01',
-                    visitedWebsitesToday: [], lastWebsiteVisitDate: '1970-01-01', completedSocialTasks: []
-                };
-                await setDoc(doc(db, "users", currentUser.uid), defaultUserData);
-                await logTransaction(50, 'Signup Bonus', 'Welcome bonus for joining RewardMe');
-                userData = defaultUserData;
-                
-                await initializeAppAfterLogin();
-            } catch (error) {
-                console.error("Error saving name:", error);
-                showAlert("Could not save name. Please try again.");
-            } finally {
-                loader.style.display = 'none';
-            }
-        }
+  const name = document.getElementById("user-name-input").value.trim();
+  const email = document.getElementById("user-email-input").value.trim();
+  if (name.length < 3 || !email) return showAlert("Please enter a valid name and email.");
+
+  loader.style.display = "flex";
+  try {
+    await updateProfile(currentUser, { displayName: name });
+    const defaultUserData = {
+      uid: currentUser.uid,
+      name,
+      email,
+      balance: 50,
+      // Add other default fields if needed
+    };
+    await setDoc(doc(db, "users", currentUser.uid), defaultUserData, { merge: true });
+    userData = { ...userData, ...defaultUserData };
+    await initializeAppAfterLogin();
+  } catch (error) {
+    showAlert("Could not save name/email. Try again.");
+  } finally {
+    loader.style.display = "none";
+  }
+}
+
 
         async function handleAuthStateChange(user) {
             loader.style.display = 'flex';
@@ -1011,6 +1012,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
