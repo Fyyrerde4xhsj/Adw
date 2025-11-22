@@ -315,6 +315,7 @@ async function fetchUserData() {
 }
 
         
+        
         function setupEventListeners() {
             document.getElementById('save-name-btn').addEventListener('click', handleSaveName);
             document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); window.navigateTo(link.dataset.page); }));
@@ -1040,6 +1041,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
