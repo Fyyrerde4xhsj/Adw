@@ -280,10 +280,7 @@
             navigateTo('home-page');
         }
 
-        // Make sure these are already imported at the top of your script:
-// import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-// import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+        
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
@@ -1043,6 +1040,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
