@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Earning App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700,900&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* =============================================== */
+        /* === 1. DESIGN SYSTEM & GLOBAL STYLES === */
+        /* =============================================== */
+        :root {
+            --primary-green: #28a745; --primary-dark-green: #006400; --primary-orange: #ffc107;
+            --text-dark: #2c3e50; --text-light: #fff; --text-subtle: #95a5a6;
+            --background-light: #f4f7f6; --border-color: #eef0f1; --mining-dark-bg: #1a202c;
+            --mining-teal: #38f9d7; --grad-green: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --grad-red: linear-gradient(to right, #f5af19, #f12711); --grad-lucky-wheel: linear-gradient(to right, #fdeec9, #f8d79a);
+            --grad-daily-checkin: linear-gradient(to right, #fecd7f, #fca652); --grad-subscribe: linear-gradient(to right, #d8deff, #c2cbfb);
+            --grad-invitation: linear-gradient(to right, #eadcff, #dcc6ff);
+            --spacing-sm: 8px; --spacing-md: 16px; --spacing-lg: 24px; --border-radius: 20px;
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Roboto', sans-serif; background-color: var(--background-light); color: var(--text-dark); overscroll-behavior-y: contain; line-height: 1.6; }
+        #app { max-width: 450px; margin: auto; background-color: #fff; min-height: 100vh; position: relative; padding-bottom: 70px; overflow: hidden; }
+        .page { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .main-content { padding: var(--spacing-md); }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-md); color: var(--text-light); background: var(--grad-green); }
+        .header .balance-info { display: flex; gap: 10px; }
+        .header .balance, .header .ad-chances { background-color: rgba(255, 255, 255, 0.2); padding: 5px 15px; border-radius: 20px; font-weight: 500; }
+        .header-title { font-weight: 700; font-size: 1.1em; position: absolute; left: 50%; transform: translateX(-50%); }
+        .back-btn { cursor: pointer; font-size: 1.2em; z-index: 10; }
+        .card { background-color: #fff; border-radius: var(--border-radius); padding: var(--spacing-md); margin-bottom: var(--spacing-md); box-shadow: var(--shadow-md); }
+        .btn { padding: 10px 25px; border: none; border-radius: 25px; font-weight: 700; cursor: pointer; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease; }
+        .btn i.fa-video { margin-right: 8px; }
+        .btn:active { transform: scale(0.95); }
+        .btn-get { background-color: var(--primary-orange); color: var(--text-dark); }
+        .btn-claimed { background-color: #e0e0e0; color: #9e9e9e; cursor: not-allowed; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 450px; margin: auto; display: flex; justify-content: space-around; background-color: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); padding: 10px 0; border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #999; cursor: pointer; font-size: 0.8em; }
+        .nav-item.active { color: var(--primary-dark-green); }
+        .nav-item i { font-size: 1.5em; margin-bottom: 5px; }
+
+        /* --- Auth Screen --- */
+        #auth-container { height: 100vh; display: flex; justify-content: center; align-items: center; }
+        #auth-screen { text-align: center; width: 100%; }
+        #auth-screen h2 { color: var(--primary-dark-green); }
+        .auth-form { display: flex; flex-direction: column; gap: var(--spacing-md); max-width: 320px; margin: var(--spacing-lg) auto; }
+        .auth-form input { padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 1em; }
+        .auth-form button { background: var(--grad-green); color: var(--text-light); padding: 12px; }
+        .toggle-auth { color: var(--primary-green); cursor: pointer; margin-top: var(--spacing-md); }
+        .app-content { display: none; }
+
+        /* --- Home Screen --- */
+        #home-screen .earn-card { background: var(--grad-green); color: var(--text-light); display: flex; padding: var(--spacing-lg); overflow: hidden; position: relative; min-height: 150px; }
+        #home-screen .earn-card-content { z-index: 2; position: relative; max-width: 65%; }
+        #home-screen .earn-card-img { width: 60%; height:auto; position: absolute; bottom: -10px; right: -25px; z-index: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3)); }
+        #home-screen .earn-card-content h1 { font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 2.8em; margin: 0; line-height: 1.0; letter-spacing: -2px; color: #fff; text-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25); }
+        #home-screen .earn-card-content p { margin: 8px 0 16px 0; font-size: 0.95em; font-weight: 400; opacity: 0.9; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        .btn-explore { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); color: var(--text-light); border-radius: 20px; padding: 10px 22px; font-weight: 700; text-transform: none; font-family: 'Poppins', sans-serif; font-size: 0.85em; text-shadow: 0 1px 2px rgba(0,0,0,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-explore i { margin-left: 8px; font-size: 0.9em; }
+        #home-screen .rewards-banner { background: var(--grad-red); text-align: center; color: white; font-weight: 500; padding: 12px; }
+        #home-screen .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        #home-screen .task-item:last-child { border-bottom: none; }
+        .task-info { display: flex; align-items: center; gap: var(--spacing-md); }
+        .task-info i { font-size: 2em; width: 32px; text-align: center; }
+        .fa-youtube { color: #FF0000; } .fa-instagram { color: #E4405F; } .fa-twitter { color: #1DA1EE; } .fa-thumbs-up { color: #3b5998; }
+        .task-info div p { margin: 0; font-weight: 500; } .task-info div small { color: var(--text-subtle); }
+        
+        /* --- Win More & Sub-Pages --- */
+        .win-more-card { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--border-radius); margin-bottom: var(--spacing-md); color: #4a3f35; }
+        .win-more-card.clickable { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; justify-content: space-between; }
+        .win-more-card.clickable:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .win-more-card .card-text { flex-grow: 1; }
+        .win-more-card i.fa-chevron-right { color: var(--text-subtle); font-size: 1.2em; }
+        .win-more-card img { width: 95px; flex-shrink: 0; }
+        .win-more-card .card-text h4 { margin: 0 0 5px 0; font-size: 1.1em; font-weight: 700; }
+        .win-more-card .card-text p { margin: 0; font-size: 0.9em; color: var(--text-subtle); }
+        .lucky-wheel { background: var(--grad-lucky-wheel); } .daily-checkin { background: var(--grad-daily-checkin); } .subscribe { background: var(--grad-subscribe); } .invitation-star { background: var(--grad-invitation); }
+        .sub-page-content { text-align: center; padding: var(--spacing-lg) var(--spacing-md); }
+        .sub-page-content img { max-width: 150px; margin-bottom: var(--spacing-lg); }
+        .sub-page-content p { color: var(--text-subtle); max-width: 300px; margin: var(--spacing-md) auto; }
+        
+        /* --- Wallet Screen --- */
+        .balance-card { background: var(--grad-green); color: white; text-align: center; position: relative; overflow: hidden; }
+        .balance-amount { font-size: 2.5em; font-weight: 700; margin: 10px 0; }
+        .detail-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .detail-item:last-child { border-bottom: none; }
+        
+        /* --- Athena Screen --- */
+        #athena-screen .mining-container { background-color: var(--mining-dark-bg); color: var(--text-light); padding: var(--spacing-lg); text-align: center; border-radius: var(--border-radius); }
+        .mining-container h3 { font-weight: 300; color: var(--primary-green); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 0; }
+        .miner-visual { position: relative; width: 200px; height: 200px; margin: var(--spacing-lg) auto; border-radius: 50%; background: radial-gradient(circle, #2d3748 0%, var(--mining-dark-bg) 70%); display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
+        .miner-visual::before, .miner-visual::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; border: 2px solid rgba(56, 249, 215, 0.3); animation: pulse 2.5s linear infinite; }
+        .miner-visual::after { animation-delay: 1.25s; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.6); opacity: 0; } }
+        .miner-icon { font-size: 4.5em; color: var(--mining-teal); text-shadow: 0 0 25px var(--mining-teal); animation: float 4s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .mined-amount h2 { font-size: 3em; font-weight: 700; margin: 0; color: var(--text-light); letter-spacing: -1px; }
+        .mined-amount p { margin: 0 0 var(--spacing-lg) 0; color: var(--text-subtle); }
+        .mining-timer { margin-bottom: var(--spacing-lg); font-size: 1.2em; font-weight: 500; color: var(--primary-orange); }
+        .btn-mine { background: var(--grad-green); color: var(--text-dark); width: 90%; padding: 16px 0; font-size: 1.1em; box-shadow: 0 4px 20px rgba(56, 249, 215, 0.3); }
+        .btn-mine:disabled { background: #4a5568; color: #a0aec0; cursor: not-allowed; box-shadow: none; }
+
+        /* --- Styles for the Lucky Wheel --- */
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; display: flex; justify-content: center; align-items: center; }
+        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent; border-top: 40px solid #c0392b; z-index: 10; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
+        #lucky-wheel { position: relative; width: 100%; height: 100%; border-radius: 50%; border: 8px solid #f8d79a; overflow: hidden; transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1); background: conic-gradient( #3498db 0deg 45deg, #e67e22 45deg 90deg, #2ecc71 90deg 135deg, #e74c3c 135deg 180deg, #9b59b6 180deg 225deg, #f1c40f 225deg 270deg, #1abc9c 270deg 315deg, #e91e63 315deg 360deg ); }
+        .wheel-segment { position: absolute; width: 35%; height: 5%; top: 50%; left: 50%; transform-origin: 0% 0%; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); font-size: 1.1em; padding-left: 25px; }
+        .wheel-segment:nth-child(1) { transform: rotate(22.5deg) skewY(45deg); } .wheel-segment:nth-child(2) { transform: rotate(67.5deg) skewY(45deg); } .wheel-segment:nth-child(3) { transform: rotate(112.5deg) skewY(45deg); } .wheel-segment:nth-child(4) { transform: rotate(157.5deg) skewY(45deg); } .wheel-segment:nth-child(5) { transform: rotate(202.5deg) skewY(45deg); } .wheel-segment:nth-child(6) { transform: rotate(247.5deg) skewY(45deg); } .wheel-segment:nth-child(7) { transform: rotate(292.5deg) skewY(45deg); } .wheel-segment:nth-child(8) { transform: rotate(337.5deg) skewY(45deg); }
+        .wheel-segment span { display: block; transform: skewY(-45deg) rotate(-67.5deg); }
+
+        /* --- Styles for Modals --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px; animation: fadeIn 0.3s ease-in-out; }
+        .modal-content { background: white; padding: var(--spacing-lg); border-radius: var(--border-radius); text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.2); max-width: 340px; width: 100%; }
+        .modal-content h3 { margin-top: 0; color: var(--primary-dark-green); }
+        .modal-content p { margin: var(--spacing-md) 0; color: var(--text-dark); }
+        .modal-content .btn { background: var(--grad-green); color: var(--text-light); margin-top: var(--spacing-sm); }
+        .withdraw-form { display: flex; flex-direction: column; gap: var(--spacing-md); margin-top: var(--spacing-md); }
+        .withdraw-form .input-group { text-align: left; }
+        .withdraw-form label { font-weight: 500; font-size: 0.9em; margin-bottom: 4px; display: block; }
+        .withdraw-form input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 1em; }
+        .withdraw-form .balance-info { font-size: 0.85em; color: var(--text-subtle); margin-top: 4px; }
+        .withdraw-buttons { display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-md); }
+        .withdraw-buttons .btn { flex: 1; }
+        .btn-cancel { background: #e0e0e0; color: #757575; }
+
+        /* --- Ad Simulation Styles --- */
+        #ad-simulation-modal { z-index: 9999; }
+        #ad-simulation-modal .modal-content { background-color: #000; color: #fff; }
+        #ad-simulation-modal h3 { color: #fff; }
+        #ad-simulation-modal p { color: #ccc; }
+
+        /* --- Styles for Invitation Page --- */
+        .referral-box { background-color: #f0f2f5; padding: var(--spacing-md); border: 2px dashed var(--primary-green); border-radius: 15px; margin-top: var(--spacing-lg); }
+        .referral-box p { margin: 0 0 var(--spacing-sm) 0; font-weight: 500; }
+        .referral-code { font-size: 1.8em; font-weight: 700; color: var(--primary-dark-green); letter-spacing: 2px; }
+        .btn-copy { background: var(--grad-green); color: white; width: 80%; margin: var(--spacing-lg) auto 0 auto; display: block; }
+        .btn-copy i { margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Auth Container -->
+        <div id="auth-container">
+            <div id="auth-screen" class="page active">
+                <div id="login-form-container"><h2>Welcome Back!</h2><form class="auth-form" id="login-form"><input type="email" id="login-email" placeholder="Email" required><input type="password" id="login-password" placeholder="Password" required><button type="submit" class="btn">Login</button></form><p>Don't have an account? <span class="toggle-auth" id="show-register">Register here</span></p></div>
+                <div id="register-form-container" style="display: none;"><h2>Create Account</h2><form class="auth-form" id="register-form"><input type="email" id="register-email" placeholder="Email" required><input type="password" id="register-password" placeholder="Password (min. 6 chars)" required><button type="submit" class="btn">Register</button></form><p>Already have an account? <span class="toggle-auth" id="show-login">Login here</span></p></div>
+            </div>
+        </div>
+
+        <!-- Main App Content -->
+        <div class="app-content">
+            <header id="app-header"></header>
+            <main class="main-content">
+                <div id="home-screen" class="page"></div><div id="win-more-screen" class="page"></div><div id="wallet-screen" class="page"></div><div id="athena-screen" class="page"></div><div id="lucky-wheel-screen" class="page"></div><div id="daily-checkin-screen" class="page"></div><div id="invitation-star-screen" class="page"></div>
+            </main>
+            <nav class="bottom-nav">
+                <div class="nav-item" data-target="home-screen"><i class="fas fa-home"></i><span>Home</span></div><div class="nav-item" data-target="win-more-screen"><i class="fas fa-gift"></i><span>Win</span></div><div class="nav-item" data-target="wallet-screen"><i class="fas fa-wallet"></i><span>Wallet</span></div><div class="nav-item" data-target="athena-screen"><i class="fas fa-robot"></i><span>Mine</span></div>
+            </nav>
+        </div>
+        
+        <!-- Modals -->
+        <div id="popup-modal" class="modal-overlay" style="display: none;"><div class="modal-content"><h3 id="popup-title">Title</h3><p id="popup-message">Message</p><button id="popup-close" class="btn">Got it!</button></div></div>
+        <div id="withdraw-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content"><h3>Request Withdrawal</h3><form id="withdraw-form" class="withdraw-form"><div class="input-group"><label for="withdraw-amount">Amount (INR)</label><input type="number" id="withdraw-amount" placeholder="e.g., 50" step="0.01" required><p class="balance-info">Available: <span id="withdraw-balance-info">₹0.00</span></p></div><div class="input-group"><label for="withdraw-upi">UPI ID</label><input type="text" id="withdraw-upi" placeholder="yourname@bank" required></div><div class="withdraw-buttons"><button type="button" id="withdraw-cancel" class="btn btn-cancel">Cancel</button><button type="submit" class="btn">Submit</button></div></form></div>
+        </div>
+        <div id="ad-simulation-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <h3>Showing Rewarded Ad</h3>
+                <p>Please wait... <span id="ad-timer">5</span>s</p>
+                <i class="fas fa-film fa-3x fa-spin"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        const monetag = {
+            showRewarded: (onSuccess, onError) => {
+                console.log("Attempting to show a rewarded video ad.");
+                const adModal = document.getElementById('ad-simulation-modal');
+                const adTimer = document.getElementById('ad-timer');
+                if (adModal && adTimer) {
+                    adModal.style.display = 'flex';
+                    let timeLeft = 5;
+                    adTimer.textContent = timeLeft;
+                    const interval = setInterval(() => {
+                        timeLeft--;
+                        adTimer.textContent = timeLeft;
+                        if (timeLeft <= 0) {
+                            clearInterval(interval);
+                            adModal.style.display = 'none';
+                            console.log("Ad finished successfully.");
+                            if (onSuccess) onSuccess();
+                        }
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                         console.log("Ad finished successfully (no modal).");
+                         if(onSuccess) onSuccess();
+                    }, 2000);
+                }
+            }
+        };
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const firebaseConfig = {
+            apiKey: "AIzaSyCItmOqLG-uKH2LwPILrNyhZTCS7LR_ZFA",
+            authDomain: "javagoatproject.firebaseapp.com",
+            databaseURL: "https://javagoatproject-default-rtdb.firebaseio.com",
+            projectId: "javagoatproject",
+            storageBucket: "javagoatproject.firebasestorage.app",
+            messagingSenderId: "8028170721",
+            appId: "1:8028170721:web:8e0c988d3fe78763418aa0"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let appState = { currentPage: 'home-screen', currentUser: null, userData: null, userRef: null, isSpinning: false };
+        let dynamicUiInterval;
+
+        // --- UI HELPER FUNCTIONS ---
+        const popupModal = document.getElementById('popup-modal');
+        const showPopup = (title, message) => { document.getElementById('popup-title').textContent = title; document.getElementById('popup-message').textContent = message; if (popupModal) popupModal.style.display = 'flex'; };
+        const hidePopup = () => { if (popupModal) popupModal.style.display = 'none'; };
+        document.getElementById('popup-close').addEventListener('click', hidePopup);
+
+        const withdrawModal = document.getElementById('withdraw-modal');
+        const showWithdrawModal = () => { document.getElementById('withdraw-balance-info').textContent = `₹${appState.userData.balance.toFixed(2)}`; document.getElementById('withdraw-form').reset(); if(withdrawModal) withdrawModal.style.display = 'flex'; };
+        const hideWithdrawModal = () => { if(withdrawModal) withdrawModal.style.display = 'none'; };
+        document.getElementById('withdraw-cancel').addEventListener('click', hideWithdrawModal);
+        
+        const triggerConfetti = () => { confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } }); };
+        
+        const formatTime = (ms) => {
+            if (ms <= 0) return 'Available Now!';
+            const h = String(Math.floor((ms / 3600000) % 24)).padStart(2, '0'), m = String(Math.floor((ms / 60000) % 60)).padStart(2, '0'), s = String(Math.floor((ms / 1000) % 60)).padStart(2, '0');
+            return `Available in ${h}:${m}:${s}`;
+        };
+
+        // --- RENDER FUNCTIONS ---
+        const renderHeader = () => {
+            const headerContainer = document.getElementById('app-header');
+            if (!headerContainer || !appState.userData) return;
+            headerContainer.className = 'header';
+            const subPageTitles = { 'lucky-wheel-screen': 'Lucky Wheel', 'daily-checkin-screen': 'Daily Check-in', 'invitation-star-screen': 'Invite Friends' };
+            const pageTitle = subPageTitles[appState.currentPage];
+            if (pageTitle) { headerContainer.innerHTML = `<span class="back-btn" data-target="win-more-screen"><i class="fas fa-arrow-left"></i></span><div class="header-title">${pageTitle}</div><span></span>`; } 
+            else { headerContainer.innerHTML = `<span id="logout-btn" style="cursor:pointer;"><i class="fas fa-sign-out-alt"></i></span><div class="balance-info"><div class="balance">₹ ${appState.userData.balance.toFixed(2)}</div><div class="ad-chances"><i class="fas fa-video"></i> ${appState.userData.videoAdChances || 0}</div></div>`; }
+        };
+
+        const renderHomePage = () => {
+            const homeScreen = document.getElementById('home-screen');
+            if(!homeScreen || !appState.userData) return;
+            homeScreen.innerHTML = `<section class="card earn-card"><div class="earn-card-content"><h1>Earn<br>Money</h1><p>Your Daily Rewards Hub</p><button class="btn btn-explore" id="go-to-win-page">Explore <i class="fas fa-arrow-right"></i></button></div><img height="105%" style="margin-right:5%" src="images/lucky-wheel.png" alt="Earn Money" class="earn-card-img"></section><section class="card rewards-banner"><p>DOUBLE REWARDS - LIVE NOW!</p></section><section class="card"><h3><i class="fas fa-star" style="color: orange;"></i> Task Center</h3><div id="task-list"></div></section>`;
+            const taskListContainer = document.getElementById('task-list');
+            const tasks = appState.userData.socialTasks || []; 
+            if (tasks.length > 0) {
+                taskListContainer.innerHTML = tasks.map((task, index) => `<div class="task-item"><div class="task-info"><i class="${task.icon}"></i><div><p>${task.name}</p><small>Reward: ₹${task.reward.toFixed(2)}</small></div></div><button class="btn ${task.status === 'claimed' ? 'btn-claimed' : 'btn-get'}" data-task-index="${index}" ${task.status === 'claimed' ? 'disabled' : ''}>${task.status === 'claimed' ? 'Claimed' : '<i class="fas fa-video"></i>Get'}</button></div>`).join('');
+            } else {
+                taskListContainer.innerHTML = `<p style="text-align:center; color: #999;">No tasks available.</p>`;
+            }
+        };
+        
+        const renderWalletPage = () => { 
+            if (!appState.userData) return;
+            const transactions = appState.userData.transactions ? Object.values(appState.userData.transactions) : [];
+            const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const transactionsHtml = sortedTransactions.map(tx => `<div class="detail-item"><div><p>${tx.description}</p><small style="color: #888;">${new Date(tx.date).toLocaleString()}</small></div><span style="color: ${tx.amount >= 0 ? 'var(--primary-green)' : 'red'}; font-weight: bold;">${tx.amount >= 0 ? '+' : ''} ${tx.amount.toFixed(2)} INR</span></div>`).join(''); 
+            document.getElementById('wallet-screen').innerHTML = `<section class="card balance-card"><div style="z-index: 2; position: relative;"><p style="margin:0; opacity: 0.8;">Total Balance</p><h2 class="balance-amount">₹ ${appState.userData.balance.toFixed(2)}</h2><button id="withdraw-btn" class="btn btn-get" style="background: white; color: black;">Withdraw</button></div></section><section class="card"><h4>Transactions</h4>${transactionsHtml || '<p style="text-align:center; color: #999;">No transactions yet.</p>'}</section>`; 
+        };
+        
+        const renderWinMorePage = () => { document.getElementById('win-more-screen').innerHTML = `<div class="win-more-card lucky-wheel clickable" data-target="lucky-wheel-screen"><img src="images/lucky-wheel.png" alt="Lucky Wheel"><div class="card-text"><h4>LUCKY WHEEL TO WIN</h4><p>Spin daily for cash prizes</p></div><i class="fas fa-chevron-right"></i></div><div class="win-more-card daily-checkin clickable" data-target="daily-checkin-screen"><img src="images/daily-reward.png" alt="Daily Check-in"><div class="card-text"><h4>DAILY CHECK-IN</h4><p>GET FREE CASH</p></div><i class="fas fa-chevron-right"></i></div><div class="win-more-card subscribe clickable" data-target="home-screen"><img src="images/social-subscribe.png" alt="Subscribe"><div class="card-text"><h4>GO SUBSCRIBE</h4><p>MORE ABOUT EARNING</p></div><i class="fas fa-chevron-right"></i></div><div class="win-more-card invitation-star clickable" data-target="invitation-star-screen"><img src="images/invitation-star.png" alt="Invitation"><div class="card-text"><h4>Invite Friends</h4><p>Earn rewards with your friends</p></div><i class="fas fa-chevron-right"></i></div>`; };
+        
+        const renderInvitationStarPage = () => {
+            document.getElementById('invitation-star-screen').innerHTML = `<div class="card sub-page-content"><img src="images/invitation-star.png" alt="Invitation Star"><h2>Invite & Earn!</h2><p>Share your code with friends. When they sign up, you both get rewarded! Top referrers win extra prizes.</p><div class="referral-box"><p>Your Unique Referral Code</p><span class="referral-code">${appState.userData.referralCode || '...'}</span></div><button id="copy-referral-btn" class="btn btn-copy"><i class="fas fa-copy"></i>Copy Code</button></div>`;
+        };
+        
+        const renderAthenaPage = () => { document.getElementById('athena-screen').innerHTML = `<div class="mining-container"><h3>Athena AI Miner</h3><div class="miner-visual"><i class="fas fa-robot miner-icon"></i></div><div class="mined-amount"><h2 id="mined-value">0.00000</h2><p>Mined (INR)</p></div><div id="mining-timer" class="mining-timer">Ready to start</div><button id="mining-action-btn" class="btn btn-mine">Activate</button></div>`; };
+        const renderDailyCheckinPage = () => { document.getElementById('daily-checkin-screen').innerHTML = `<div class="card sub-page-content"><img src="images/daily-reward.png" alt="Daily Check-in"><h2>Daily Check-in</h2><p>Login every day to claim your free cash reward!</p><button id="daily-checkin-btn" class="btn btn-get" style="width: 80%; margin: auto; display: block;"><i class="fas fa-video"></i>CHECK-IN</button><p id="checkin-timer" style="margin-top: 1em; font-weight: 500;"></p></div>`; };
+        const renderLuckyWheelPage = () => { document.getElementById('lucky-wheel-screen').innerHTML = `<div class="card sub-page-content"><div class="wheel-container"><div class="wheel-pointer"></div><div id="lucky-wheel">${[{t:'₹0.1'},{t:'₹0.5'},{t:'₹1'},{t:'Try Again'},{t:'₹0.2'},{t:'₹2'},{t:'₹0.3'},{t:'Try Again'}].map(p=>`<div class="wheel-segment"><span>${p.t}</span></div>`).join('')}</div></div><h2>Spin the Lucky Wheel!</h2><p>You have 5 spins. A 1-hour cooldown starts after the last spin.</p><button id="spin-wheel-btn" class="btn btn-get" style="width: 80%; display: block; margin: auto;"><i class="fas fa-video"></i>SPIN NOW</button><p id="spin-timer" style="margin-top: 1em; font-weight: 500;"></p></div>`;};
+
+        const updateDynamicUI = () => {
+            if (!appState.userData) return;
+            const now = Date.now();
+            if (appState.currentPage === 'athena-screen' && appState.userData.mining) {
+                const { isMining, lastClaimTimestamp, ratePerHour, claimInterval } = appState.userData.mining;
+                const [minedValueEl, timerEl, buttonEl] = [document.getElementById('mined-value'), document.getElementById('mining-timer'), document.getElementById('mining-action-btn')];
+                if (minedValueEl && timerEl && buttonEl) {
+                    if (!isMining) { minedValueEl.textContent = '0.00000'; timerEl.textContent = 'Ready to start'; buttonEl.textContent = 'Activate'; buttonEl.disabled = false; } 
+                    else {
+                        const elapsedTime = now - lastClaimTimestamp;
+                        if (elapsedTime >= claimInterval) { minedValueEl.textContent = ((claimInterval / 3600000) * ratePerHour).toFixed(5); timerEl.textContent = 'Claim Now!'; buttonEl.textContent = 'Claim'; buttonEl.disabled = false; } 
+                        else { minedValueEl.textContent = ((elapsedTime / 3600000) * ratePerHour).toFixed(5); const rem = claimInterval - elapsedTime; timerEl.textContent = `Time Remaining: ${formatTime(rem).replace('Available in ','')}`; buttonEl.textContent = 'Mining...'; buttonEl.disabled = true; }
+                    }
+                }
+            }
+            if(appState.currentPage === 'daily-checkin-screen' && appState.userData) {
+                const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+                const [buttonEl, timerEl] = [document.getElementById('daily-checkin-btn'), document.getElementById('checkin-timer')];
+                if(buttonEl && timerEl) {
+                    const timeSinceCheckin = now - (appState.userData.lastCheckinTimestamp || 0);
+                    if (timeSinceCheckin < ONE_DAY_MS) { buttonEl.disabled = true; buttonEl.classList.add('btn-claimed'); buttonEl.innerHTML = 'Claimed Today'; timerEl.textContent = formatTime(ONE_DAY_MS - timeSinceCheckin); } 
+                    else { buttonEl.disabled = false; buttonEl.classList.remove('btn-claimed'); buttonEl.innerHTML = '<i class="fas fa-video"></i>CHECK-IN'; timerEl.textContent = 'Your daily reward is ready!'; }
+                }
+            }
+            if(appState.currentPage === 'lucky-wheel-screen' && appState.userData.luckyWheel) {
+                const [buttonEl, timerEl] = [document.getElementById('spin-wheel-btn'), document.getElementById('spin-timer')];
+                if(buttonEl && timerEl) {
+                    const { spinsRemaining, cooldownUntil } = appState.userData.luckyWheel;
+                    if (appState.isSpinning) { buttonEl.disabled = true; buttonEl.innerHTML = 'Spinning...'; }
+                    else if (cooldownUntil && now < cooldownUntil) { buttonEl.disabled = true; buttonEl.classList.add('btn-claimed'); buttonEl.innerHTML = 'On Cooldown'; timerEl.textContent = formatTime(cooldownUntil - now); } 
+                    else if (cooldownUntil && now >= cooldownUntil) { database.ref(`/users/${appState.currentUser.uid}/luckyWheel`).update({ spinsRemaining: 5, cooldownUntil: null }); }
+                    else {
+                        if (spinsRemaining <= 0) { buttonEl.disabled = true; buttonEl.innerHTML = 'No Spins Left'; }
+                        else { buttonEl.disabled = false; buttonEl.classList.remove('btn-claimed'); buttonEl.innerHTML = `<i class="fas fa-video"></i>SPIN NOW (${spinsRemaining} left)`; timerEl.textContent = `You have ${spinsRemaining} attempt(s) remaining.`; }
+                    }
+                }
+            }
+        };
+
+        const executeTransaction = (updates) => { database.ref().update(updates).catch(err => showPopup('Error', err.message)); };
+
+        // --- CORE HANDLER FUNCTIONS ---
+        
+        const showVideoAd = (onAdComplete, onAdError) => {
+            if (!appState.userData || appState.userData.videoAdChances <= 0) {
+                showPopup('No Ads Left', 'You have used all your video ad chances for today. Come back tomorrow!');
+                if(onAdError) onAdError(); // Notify caller that ad can't be shown
+                return;
+            }
+
+            monetag.showRewarded(() => {
+                const updates = {};
+                updates[`/users/${appState.currentUser.uid}/videoAdChances`] = appState.userData.videoAdChances - 1;
+                database.ref().update(updates);
+                if(onAdComplete) onAdComplete();
+            }, () => {
+                showPopup('Ad Error', 'The video ad could not be loaded. Please try again.');
+                if(onAdError) onAdError();
+            });
+        };
+
+        const handleTaskGetClick = (taskIndex) => {
+            const task = appState.userData.socialTasks[taskIndex];
+            if (!task || task.status !== 'pending') return;
+            
+            showVideoAd(() => {
+                window.open(task.link, '_blank');
+                const updates = {};
+                const uid = appState.currentUser.uid;
+                const newTxKey = database.ref(`/users/${uid}/transactions`).push().key;
+                updates[`/users/${uid}/socialTasks/${taskIndex}/status`] = 'claimed';
+                updates[`/users/${uid}/balance`] = appState.userData.balance + task.reward;
+                updates[`/users/${uid}/transactions/${newTxKey}`] = { date: new Date().toISOString(), description: task.name, amount: task.reward };
+                executeTransaction(updates);
+                showPopup('Task Complete!', `You claimed ₹${task.reward.toFixed(2)}!`);
+            });
+        };
+
+        const handleMiningAction = () => {
+            const { isMining, lastClaimTimestamp, ratePerHour, claimInterval } = appState.userData.mining;
+            const uid = appState.currentUser.uid;
+            const now = Date.now();
+
+            if (!isMining) { 
+                database.ref(`/users/${uid}/mining`).update({ isMining: true, lastClaimTimestamp: now }); 
+                document.getElementById('mining-action-btn').textContent = 'Mining...';
+                document.getElementById('mining-action-btn').disabled = true;
+            } else if (now - lastClaimTimestamp >= claimInterval) {
+                const reward = (claimInterval / 3600000) * ratePerHour;
+                const updates = {};
+                const newTxKey = database.ref(`/users/${uid}/transactions`).push().key;
+                updates[`/users/${uid}/balance`] = appState.userData.balance + reward;
+                updates[`/users/${uid}/mining`] = { ...appState.userData.mining, isMining: false, lastClaimTimestamp: null };
+                updates[`/users/${uid}/transactions/${newTxKey}`] = { date: new Date().toISOString(), description: 'Athena AI Miner Reward', amount: reward };
+                executeTransaction(updates);
+                showPopup('Reward Claimed!', `You received ₹${reward.toFixed(5)} from the miner!`);
+            }
+        };
+
+        const handleDailyCheckin = () => {
+            const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+            if (Date.now() - (appState.userData.lastCheckinTimestamp || 0) < ONE_DAY_MS) { 
+                showPopup('Already Claimed', 'You can claim your daily reward once every 24 hours.'); 
+                return; 
+            }
+
+            showVideoAd(() => {
+                const reward = 2.50;
+                const updates = {};
+                const uid = appState.currentUser.uid;
+                const newTxKey = database.ref(`/users/${uid}/transactions`).push().key;
+                updates[`/users/${uid}/balance`] = appState.userData.balance + reward;
+                updates[`/users/${uid}/lastCheckinTimestamp`] = Date.now();
+                updates[`/users/${uid}/transactions/${newTxKey}`] = { date: new Date().toISOString(), description: 'Daily Check-in Reward', amount: reward };
+                executeTransaction(updates);
+                showPopup('Reward Claimed!', `You received ₹${reward.toFixed(2)}!`); 
+                triggerConfetti();
+            });
+        };
+        
+        const handleSpinWheel = () => {
+            const { spinsRemaining, cooldownUntil } = appState.userData.luckyWheel;
+            if (appState.isSpinning) return;
+            if (cooldownUntil && Date.now() < cooldownUntil) { showPopup('Cooldown Active', 'The wheel is on cooldown.'); return; }
+            if (spinsRemaining <= 0) { showPopup('No Spins Left', 'Wait for the cooldown to finish for more spins.'); return; }
+
+            appState.isSpinning = true;
+            updateDynamicUI();
+            
+            const wheelEl = document.getElementById('lucky-wheel');
+            const segments = wheelEl.querySelectorAll('.wheel-segment span');
+            const winningIndex = Math.floor(Math.random() * segments.length);
+            const prizeText = segments[winningIndex].textContent;
+            const prizeValue = parseFloat(prizeText.replace('₹', '')) || 0;
+            const finalRotation = ( (Math.floor(Math.random() * 3) + 5) * 360 ) - (winningIndex * 45) - 157.5;
+
+            wheelEl.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            wheelEl.style.transform = `rotate(${finalRotation}deg)`;
+            
+            setTimeout(() => {
+                showVideoAd(
+                    // onAdComplete: This runs if the ad is watched successfully
+                    () => {
+                        appState.isSpinning = false;
+                        const uid = appState.currentUser.uid;
+                        const newSpins = spinsRemaining - 1;
+                        const updates = {};
+                        updates[`/users/${uid}/luckyWheel/spinsRemaining`] = newSpins;
+
+                        if (newSpins <= 0) { updates[`/users/${uid}/luckyWheel/cooldownUntil`] = Date.now() + (60 * 60 * 1000); }
+                        if (prizeValue > 0) {
+                            updates[`/users/${uid}/balance`] = appState.userData.balance + prizeValue;
+                            const newTxKey = database.ref(`/users/${uid}/transactions`).push().key;
+                            updates[`/users/${uid}/transactions/${newTxKey}`] = { date: new Date().toISOString(), description: 'Lucky Wheel Prize', amount: prizeValue };
+                            showPopup('Congratulations!', `You won ₹${prizeValue.toFixed(2)}!`);
+                            triggerConfetti();
+                        } else { 
+                            showPopup('Better Luck Next Time!', 'The wheel stopped on "Try Again".'); 
+                        }
+                        executeTransaction(updates);
+                        
+                        wheelEl.style.transition = 'none';
+                        const actualFinalRotation = finalRotation % 360;
+                        wheelEl.style.transform = `rotate(${actualFinalRotation}deg)`;
+
+                        updateDynamicUI();
+                    },
+                    // onAdError: This runs if the ad fails to load
+                    () => {
+                        appState.isSpinning = false;
+                        showPopup('Ad Failed', 'Your prize could not be claimed because the ad failed to load. Your spin has NOT been used.');
+                        
+                        // We reset the wheel's rotation but DON'T change the spin count
+                        wheelEl.style.transition = 'transform 0.5s ease-out';
+                        wheelEl.style.transform = `rotate(0deg)`; // Animate back to start
+                        
+                        updateDynamicUI();
+                    }
+                );
+            }, 5500);
+        };
+        
+        const handleWithdrawal = (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const upi = document.getElementById('withdraw-upi').value.trim();
+            const minWithdraw = 10;
+
+            if (isNaN(amount) || amount <= 0) { showPopup('Invalid Amount', 'Please enter a valid positive number.'); return; }
+            if (amount < minWithdraw) { showPopup('Amount Too Low', `Minimum withdrawal is ₹${minWithdraw}.`); return; }
+            if (amount > appState.userData.balance) { showPopup('Insufficient Funds', 'You cannot withdraw more than your balance.'); return; }
+            if (!upi || !upi.includes('@')) { showPopup('Invalid UPI ID', 'Please enter a valid UPI ID.'); return; }
+
+            const updates = {};
+            const uid = appState.currentUser.uid;
+            const newTxKey = database.ref(`/users/${uid}/transactions`).push().key;
+            updates[`/users/${uid}/balance`] = appState.userData.balance - amount;
+            updates[`/users/${uid}/transactions/${newTxKey}`] = { date: new Date().toISOString(), description: `Withdrawal to ${upi}`, amount: -amount };
+            executeTransaction(updates);
+            hideWithdrawModal();
+            showPopup('Success!', `Your withdrawal request for ₹${amount.toFixed(2)} is submitted.`);
+        };
+        
+        const handleCopyReferralCode = () => {
+            const code = appState.userData.referralCode;
+            if(navigator.clipboard && code) {
+                navigator.clipboard.writeText(code).then(() => showPopup('Copied!', 'Referral code copied to clipboard.')).catch(() => showPopup('Error', 'Could not copy the code.'));
+            }
+        };
+
+        const showPage = (pageId) => {
+            appState.currentPage = pageId;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId)?.classList.add('active');
+            const subPagesOfWin = ['lucky-wheel-screen', 'daily-checkin-screen', 'invitation-star-screen'];
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.target === (subPagesOfWin.includes(pageId) ? 'win-more-screen' : pageId)));
+            renderHeader();
+            const renderMap = { 'home-screen': renderHomePage, 'wallet-screen': renderWalletPage, 'athena-screen': renderAthenaPage, 'lucky-wheel-screen': renderLuckyWheelPage, 'daily-checkin-screen': renderDailyCheckinPage, 'win-more-screen': renderWinMorePage, 'invitation-star-screen': renderInvitationStarPage };
+            renderMap[pageId]?.();
+            updateDynamicUI();
+        };
+
+        // --- AUTH & APP INITIALIZATION ---
+        const authContainer = document.getElementById('auth-container');
+        const appContent = document.querySelector('.app-content');
+        
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                appState.currentUser = user;
+                if (appState.userRef) appState.userRef.off();
+                appState.userRef = database.ref('users/' + user.uid);
+                
+                appState.userRef.on('value', (snapshot) => {
+                    if (!snapshot.exists()) {
+                        const defaultUserData = {
+                            email: user.email, balance: 0.0, referralCode: user.uid.substring(0, 8).toUpperCase(),
+                            videoAdChances: 10,
+                            socialTasks: [ { id: 1, name: 'Subscribe YouTube', reward: 5.0, status: 'pending', icon: 'fab fa-youtube', link: '#' }, { id: 2, name: 'Follow Instagram', reward: 5.0, status: 'pending', icon: 'fab fa-instagram', link: '#' } ],
+                            transactions: {}, mining: { isMining: false, ratePerHour: 0.05, lastClaimTimestamp: null, claimInterval: 3600000 }, lastCheckinTimestamp: null, luckyWheel: { spinsRemaining: 5, cooldownUntil: null },
+                        };
+                        appState.userRef.set(defaultUserData);
+                        appState.userData = defaultUserData;
+                    } else {
+                        const userData = snapshot.val();
+                        const updates = {};
+                        if (userData.videoAdChances === undefined) updates.videoAdChances = 10;
+                        if (!userData.luckyWheel) updates.luckyWheel = { spinsRemaining: 5, cooldownUntil: null };
+                        if (userData.lastCheckinTimestamp === undefined) updates.lastCheckinTimestamp = null;
+                        if (!userData.referralCode) updates.referralCode = user.uid.substring(0, 8).toUpperCase();
+                        if (!userData.socialTasks) updates.socialTasks = [ { id: 1, name: 'Subscribe YouTube', reward: 5.0, status: 'pending', icon: 'fab fa-youtube', link: '#' }, { id: 2, name: 'Follow Instagram', reward: 5.0, status: 'pending', icon: 'fab fa-instagram', link: '#' } ];
+                        if (!userData.mining) updates.mining = { isMining: false, ratePerHour: 0.05, lastClaimTimestamp: null, claimInterval: 3600000 };
+
+                        if (Object.keys(updates).length > 0) appState.userRef.update(updates);
+                        appState.userData = { ...userData, ...updates };
+                    }
+                    authContainer.style.display = 'none'; appContent.style.display = 'block';
+                    showPage(appState.currentPage);
+                });
+                if (!dynamicUiInterval) dynamicUiInterval = setInterval(updateDynamicUI, 1000);
+            } else {
+                if (appState.userRef) appState.userRef.off();
+                appState.currentUser = null; appState.userData = null;
+                clearInterval(dynamicUiInterval); dynamicUiInterval = null;
+                authContainer.style.display = 'flex'; appContent.style.display = 'none';
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(err => showPopup('Login Error', err.message)); });
+        document.getElementById('register-form').addEventListener('submit', (e) => { e.preventDefault(); auth.createUserWithEmailAndPassword(document.getElementById('register-email').value, document.getElementById('register-password').value).catch(err => showPopup('Registration Error', err.message)); });
+        document.getElementById('show-register').addEventListener('click', () => { document.getElementById('login-form-container').style.display = 'none'; document.getElementById('register-form-container').style.display = 'block'; });
+        document.getElementById('show-login').addEventListener('click', () => { document.getElementById('register-form-container').style.display = 'none'; document.getElementById('login-form-container').style.display = 'block'; });
+        document.getElementById('withdraw-form').addEventListener('submit', handleWithdrawal);
+
+        document.getElementById('app').addEventListener('click', (event) => {
+            const target = event.target.closest('[data-target], [data-task-index], #mining-action-btn, #go-to-win-page, #daily-checkin-btn, #spin-wheel-btn, #logout-btn, #withdraw-btn, #copy-referral-btn');
+            if (!target) return;
+            const targetId = target.id;
+            if (target.dataset.target) showPage(target.dataset.target);
+            else if (target.dataset.taskIndex) handleTaskGetClick(parseInt(target.dataset.taskIndex, 10));
+            else if (targetId === 'mining-action-btn') handleMiningAction();
+            else if (targetId === 'go-to-win-page') showPage('win-more-screen');
+            else if (targetId === 'daily-checkin-btn') handleDailyCheckin();
+            else if (targetId === 'spin-wheel-btn') handleSpinWheel();
+            else if (targetId === 'withdraw-btn') showWithdrawModal();
+            else if (targetId === 'copy-referral-btn') handleCopyReferralCode();
+            else if (targetId === 'logout-btn') auth.signOut();
+        });
+    });
+    </script>
+</body>
+</html>
