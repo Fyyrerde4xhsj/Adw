@@ -332,9 +332,94 @@
         }
         
         function setupEventListeners() {
-            document.getElementById('save-name-btn').addEventListener('click', handleSaveName);
-            document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); window.navigateTo(link.dataset.page); }));
+            // Auth buttons (replace old login/register handlers with this)
+document.getElementById('login-btn').addEventListener('click', async () => {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+    if (!email || !password) return showAlert("Please enter email and password.");
+
+    loader.style.display = 'flex';
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // Firebase auto redirect handled in onAuthStateChanged
+    } catch (err) {
+        console.error("Login error:", err);
+        let message = "Login failed. Please try again.";
+        switch (err.code) {
+            case "auth/invalid-credential":
+            case "auth/wrong-password":
+                message = "Invalid email or password. Please try again.";
+                break;
+            case "auth/user-not-found":
+                message = "No account found with this email.";
+                break;
+            case "auth/too-many-requests":
+                message = "Too many attempts. Please wait a few minutes.";
+                break;
         }
+        showAlert(message);
+    } finally {
+        loader.style.display = 'none';
+    }
+});
+document.getElementById('register-btn').addEventListener('click', async () => {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value.trim();
+    if (!email || !password) return showAlert("Please enter all required fields.");
+
+    loader.style.display = 'flex';
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        currentUser = userCredential.user;
+
+        const derivedName = name || (email.split('@')[0]) || 'User';
+        const ownReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const defaultUserData = {
+            uid: currentUser.uid,
+            name: derivedName,
+            email,
+            balance: 50,
+            referralCode: ownReferralCode,
+            referredBy: null,
+            referralCount: 0,
+            referralEarnings: 0,
+            createdAt: serverTimestamp(),
+            isBlocked: false,
+            dailyAdCount: 0,
+            lastAdWatchDate: '1970-01-01',
+            visitedWebsitesToday: [],
+            lastWebsiteVisitDate: '1970-01-01',
+            completedSocialTasks: []
+        };
+
+        await setDoc(doc(db, "users", currentUser.uid), defaultUserData);
+        await logTransaction(50, 'Signup Bonus', 'Welcome bonus for joining Earn money');
+        userData = defaultUserData;
+
+        showAlert("🎉 Account created successfully! Welcome aboard!");
+        await initializeAppAfterLogin();
+    } catch (err) {
+        console.error("Registration error:", err);
+        let message = "Registration failed. Please try again.";
+        switch (err.code) {
+            case "auth/email-already-in-use":
+                message = "This email is already registered. Please login instead.";
+                break;
+            case "auth/invalid-email":
+                message = "Invalid email format. Please check and try again.";
+                break;
+            case "auth/weak-password":
+                message = "Password is too weak. Use at least 6 characters.";
+                break;
+        }
+        showAlert(message);
+    } finally {
+        loader.style.display = 'none';
+    }
+});
+            // bottom nav links
+            document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); window.navigateTo(link.dataset.page); }));
         
         function populateAllPages() {
             const dynamicContent = {
@@ -1057,6 +1142,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
