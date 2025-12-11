@@ -911,67 +911,44 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 
         async function handleWebsiteVisit(e) {
   const button = e.target.closest('button');
-  if (!button) return;
-
-  const link   = button.dataset.link;
+  const link = button.dataset.link;
   const reward = parseInt(button.dataset.reward);
-
-  // ⬅️ Timer now comes fully from admin panel
-  const timer = parseInt(button.dataset.timer);
-  if (!timer || timer < 10) {
-    showAlert("Timer is not set properly in admin panel.");
-    return;
-  }
+  const timer = parseInt(button.dataset.timer) || 303; // 303 seconds minimum
 
   button.disabled = true;
   loader.style.display = "flex";
-
+  // Optional: await showAd(); // If you want to show an ad before visiting
   loader.style.display = "none";
 
   // Start timer
   let start = Date.now();
-  const newTab = window.open(link, "_blank");
+  const newTab = window.open(link, "_blank"); // Open site
 
-  if (!newTab) {
-    showAlert("Please allow pop-ups to continue!");
-    button.disabled = false;
-    return;
-  }
-
+  // Check if tab closed
   let closedCheck = setInterval(async () => {
     if (newTab.closed) {
       clearInterval(closedCheck);
-
       let diff = Math.floor((Date.now() - start) / 1000);
-
       if (diff >= timer) {
-        // Reward user
+        // Give reward!
         await updateBalance(reward, "Website Visit", `Visited ${link}`);
-
-        // Mark visited
-        const visited = [
-          ...(userData.visitedWebsitesToday || []),
-          link
-        ];
-
+        // Mark as visited so button disables
+        const visited = [...(userData.visitedWebsitesToday || []), link];
         await updateDoc(doc(db, "users", currentUser.uid), {
           visitedWebsitesToday: visited,
         });
-
         userData.visitedWebsitesToday = visited;
-
         button.textContent = "Visited";
         button.classList.remove('btn-accent');
         button.classList.add('bg-gray-500');
-
-        showAlert(`You earned ${reward} coins!`);
+        showAlert(`Congratulations! You earned ${reward} coins for visiting.`);
       } else {
         button.disabled = false;
-        showAlert(`You did not complete the required time (${timer}s).`);
+        button.textContent = "Visit Again";
+        showAlert(`You complete your task to you receipt coin!`);
       }
     }
   }, 500);
-}
 }
 
 
@@ -1035,6 +1012,7 @@ await updateDoc(doc(db, "users", currentUser.uid), {
 </body>
 
 </html>
+
 
 
 
